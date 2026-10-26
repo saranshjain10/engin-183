@@ -1,0 +1,694 @@
+<title>Westbound Visa Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a working tracker (pipeline left, visa route right) under a fog-grey sky; the Visa Desk chat docks bottom-right as the page's main tool. */
+:root {
+  --bg: #eef1f3;          /* bay fog */
+  --surface: #ffffff;
+  --surface-2: #f5f7f8;
+  --ink: #15233b;         /* passport navy */
+  --muted: #5b6676;
+  --line: #d8dee4;
+  --accent: #c2412d;      /* international orange, used sparingly */
+  --accent-ink: #ffffff;
+  --accent-soft: #fbe9e5;
+  --good: #1f7a5a;  --good-soft: #e2f3ec;
+  --warn: #9a6200;  --warn-soft: #fbf0d9;
+  --bad: #a3303a;   --bad-soft: #f8e3e5;
+  --info: #2c5a9e;  --info-soft: #e5edf9;
+  --bubble-user: #15233b; --bubble-user-ink: #ffffff;
+  --shadow: 0 18px 50px -12px rgba(21, 35, 59, .35);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1520; --surface: #172030; --surface-2: #1c2738; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2a3648;
+    --accent: #ec6a50; --accent-ink: #1a0d09; --accent-soft: #3a1f1a;
+    --good: #5cc79c; --good-soft: #15322a; --warn: #e8b453; --warn-soft: #362a12; --bad: #f08890; --bad-soft: #3a1c22; --info: #8db4f0; --info-soft: #1a2a45;
+    --bubble-user: #2b3d5c; --bubble-user-ink: #eef3fa; --shadow: 0 18px 50px -12px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1520; --surface: #172030; --surface-2: #1c2738; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2a3648;
+  --accent: #ec6a50; --accent-ink: #1a0d09; --accent-soft: #3a1f1a;
+  --good: #5cc79c; --good-soft: #15322a; --warn: #e8b453; --warn-soft: #362a12; --bad: #f08890; --bad-soft: #3a1c22; --info: #8db4f0; --info-soft: #1a2a45;
+  --bubble-user: #2b3d5c; --bubble-user-ink: #eef3fa; --shadow: 0 18px 50px -12px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Header */
+.top { border-bottom: 1px solid var(--line); background: var(--surface); }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font: 700 20px/1 var(--f-display); letter-spacing: -.01em; }
+.brand svg { flex: none; }
+.route { font: 500 12px/1 var(--f-mono); color: var(--muted); letter-spacing: .04em; }
+.top nav { display: flex; gap: 4px; margin-left: auto; }
+.top nav a { padding: 6px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: 14px; }
+.top nav a[aria-current] { color: var(--ink); background: var(--surface-2); font-weight: 600; }
+
+/* Page */
+main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
+.intro { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.intro h1 { margin: 0; font: 700 clamp(26px, 3.4vw, 34px)/1.1 var(--f-display); letter-spacing: -.02em; text-wrap: balance; }
+.intro p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.eyebrow { font: 500 11px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.profile { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.profile label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.profile select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font-size: 14px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font: 700 14px/1 var(--f-display); flex: none; }
+.who { display: flex; gap: 10px; align-items: center; margin-right: 6px; }
+.who b { display: block; font-size: 14px; }
+.who span { font-size: 12px; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+.panel-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.panel-h h2 { margin: 0; font: 600 16px/1.2 var(--f-display); }
+.note { font-size: 12px; color: var(--muted); }
+
+/* Pipeline */
+.stages { display: flex; gap: 6px; padding: 12px 16px 0; flex-wrap: wrap; }
+.stage-count { font-size: 12px; color: var(--muted); padding: 4px 8px; border-radius: 999px; background: var(--surface-2); }
+.stage-count b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.jobs { list-style: none; margin: 0; padding: 8px; display: grid; gap: 4px; }
+.job { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+.job:hover { background: var(--surface-2); }
+.job[aria-selected="true"] { background: var(--surface-2); border-color: var(--line); box-shadow: inset 3px 0 0 var(--accent); }
+.logo { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font: 700 13px/1 var(--f-display); color: #fff; }
+.job-main { min-width: 0; }
+.job-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.p-good { color: var(--good); background: var(--good-soft); }
+.p-warn { color: var(--warn); background: var(--warn-soft); }
+.p-bad { color: var(--bad); background: var(--bad-soft); }
+.p-info { color: var(--info); background: var(--info-soft); }
+.stage-tag { font: 500 11px/1 var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* Detail */
+.detail { padding: 16px; display: grid; gap: 16px; }
+.detail h3 { margin: 0; font: 700 20px/1.2 var(--f-display); letter-spacing: -.01em; text-wrap: balance; }
+.detail .meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+.visa-code { font: 500 13px/1 var(--f-mono); padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); }
+.routes { display: grid; gap: 8px; }
+.route-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
+.route-row .visa-code { justify-self: start; align-self: start; }
+.route-row b { font-size: 14px; }
+.route-row p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.timeline-bar { position: relative; height: 34px; margin-top: 4px; }
+.tl-track { position: absolute; left: 0; right: 0; top: 14px; height: 4px; border-radius: 2px; background: var(--line); }
+.tl-fill { position: absolute; top: 14px; height: 4px; border-radius: 2px; background: var(--accent); }
+.tl-dot { position: absolute; top: 9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+.tl-labels { display: flex; justify-content: space-between; font: 400 11px/1 var(--f-mono); color: var(--muted); }
+.ask-btn { display: inline-flex; align-items: center; gap: 8px; justify-content: center; border: 0; background: var(--ink); color: var(--bg); padding: 10px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.ask-btn:hover { opacity: .9; }
+.stage-select { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 13px; }
+
+/* ===== Visa Desk chat ===== */
+.desk { position: fixed; z-index: 50; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: min(420px, calc(100vw - 32px)); height: min(640px, calc(100vh - 100px)); display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden;
+  transform-origin: bottom right; transition: transform .18s ease, opacity .18s ease; }
+.desk[data-open="false"] { transform: scale(.92) translateY(10px); opacity: 0; pointer-events: none; visibility: hidden; }
+.desk-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--ink); color: var(--bg); }
+.desk-h .stamp { width: 34px; height: 34px; border-radius: 50%; border: 2px dashed var(--accent); display: grid; place-items: center; font: 700 10px/1 var(--f-mono); color: var(--bg); transform: rotate(-12deg); flex: none; }
+.desk-h h2 { margin: 0; font: 700 16px/1.1 var(--f-display); }
+.desk-h small { display: block; font-size: 12px; opacity: .75; }
+.mode { margin-left: auto; font: 500 10px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 6px; border-radius: 4px; border: 1px solid currentColor; opacity: .8; white-space: nowrap; }
+.icon-btn { background: transparent; border: 0; color: inherit; width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; flex: none; }
+.icon-btn:hover { background: rgba(127,127,127,.2); }
+
+.ctx { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-size: 12px; color: var(--muted); }
+.ctx select { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font-size: 12px; color: var(--ink); }
+
+.log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+.msg { max-width: 92%; font-size: 14px; line-height: 1.5; }
+.msg p { margin: 0 0 8px; } .msg p:last-child { margin-bottom: 0; }
+.msg ul { margin: 4px 0 8px; padding-left: 18px; } .msg li { margin: 2px 0; }
+.msg code { font: 12.5px var(--f-mono); background: var(--surface-2); padding: 1px 4px; border-radius: 3px; }
+.msg a { color: var(--info); }
+.msg.user { align-self: flex-end; background: var(--bubble-user); color: var(--bubble-user-ink); padding: 8px 12px; border-radius: 14px 14px 4px 14px; }
+.msg.bot { align-self: flex-start; }
+.msg.bot .body { background: var(--surface-2); border: 1px solid var(--line); padding: 10px 12px; border-radius: 14px 14px 14px 4px; }
+.msg.bot .foot { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; align-items: center; }
+.src { font-size: 11px; color: var(--muted); }
+.src a { color: var(--muted); }
+.mini { font-size: 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 9px; cursor: pointer; }
+.mini:hover { border-color: var(--ink); }
+.mini[aria-pressed="true"] { background: var(--good-soft); color: var(--good); border-color: transparent; }
+.thinking { display: inline-flex; gap: 4px; padding: 4px 0; }
+.thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: bob 1s infinite ease-in-out; }
+.thinking i:nth-child(2) { animation-delay: .15s; } .thinking i:nth-child(3) { animation-delay: .3s; }
+@keyframes bob { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+
+.chips { display: flex; gap: 6px; padding: 0 12px 10px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 10px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+
+.composer { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); align-items: flex-end; }
+.composer textarea { flex: 1; min-width: 0; resize: none; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 11px; max-height: 120px; font-size: 14px; line-height: 1.4; }
+.send { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 10px; height: 40px; min-width: 40px; padding: 0 12px; font-weight: 600; cursor: pointer; display: grid; place-items: center; }
+.send:disabled { opacity: .45; cursor: default; }
+.disclaimer { font-size: 11px; color: var(--muted); padding: 0 12px 10px; }
+
+.launcher { position: fixed; z-index: 49; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 10px; border: 0; cursor: pointer; background: var(--ink); color: var(--bg); padding: 12px 18px 12px 14px; border-radius: 999px; box-shadow: var(--shadow); font-weight: 600; }
+.launcher .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,45,.3); }
+
+.saved { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.saved li { font-size: 13px; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); display: flex; gap: 8px; align-items: flex-start; }
+.saved input { margin-top: 3px; accent-color: var(--accent); }
+.empty { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .desk { right: 0; bottom: 0; width: 100%; height: calc(100% - env(safe-area-inset-top, 0px) - 40px); border-radius: 16px 16px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .top nav { display: none; }
+  .job { grid-template-columns: 30px minmax(0, 1fr); }
+  .job-side { grid-column: 2; flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15 Q13 5 21 15" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21" cy="15" r="2.2" fill="var(--accent)"/></svg>
+      Westbound
+    </div>
+    <span class="route">BER → SFO</span>
+    <nav aria-label="Sections">
+      <a href="#" aria-current="page">Applications</a>
+      <a href="#">Relocation</a>
+      <a href="#">Documents</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div>
+      <div class="eyebrow">Your Bay Area search · example data</div>
+      <h1>Six roles, four visa routes</h1>
+      <p>Every application is tracked with the visa route it depends on. Ask the Visa Desk anything about your situation; it knows your profile and the role you are looking at.</p>
+    </div>
+  </section>
+
+  <section class="profile" aria-label="Your profile">
+    <div class="who"><div class="avatar">LH</div><div><b>Lena Hoffmann</b><span>ML engineer · Berlin · 6 yrs</span></div></div>
+    <label for="p-cit">Citizenship
+      <select id="p-cit">
+        <option>Germany</option><option>France</option><option>Italy</option><option>Spain</option>
+        <option>Netherlands</option><option>Ireland</option><option>Poland</option><option>Sweden</option>
+      </select>
+    </label>
+    <label for="p-deg">Highest degree
+      <select id="p-deg">
+        <option value="eu-ms">Master's (EU university)</option>
+        <option value="us-ms">Master's (US university)</option>
+        <option value="eu-phd">PhD (EU university)</option>
+        <option value="bs">Bachelor's</option>
+      </select>
+    </label>
+    <label for="p-fam">Moving with
+      <select id="p-fam">
+        <option value="partner">Spouse</option>
+        <option value="alone">Just me</option>
+        <option value="family">Spouse + kids</option>
+      </select>
+    </label>
+    <label for="p-emp">Current employer
+      <select id="p-emp">
+        <option value="none">No US office</option>
+        <option value="us">Has a US office</option>
+      </select>
+    </label>
+  </section>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="pipe-h">
+      <div class="panel-h"><h2 id="pipe-h">Applications</h2><span class="note">Select a role to see its visa route</span></div>
+      <div class="stages" id="stages"></div>
+      <ul class="jobs" id="jobs" role="listbox" aria-label="Applications"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="det-h">
+      <div class="panel-h"><h2 id="det-h">Visa route</h2><select class="stage-select" id="stage-sel" aria-label="Application stage"></select></div>
+      <div class="detail" id="detail"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="todo-h">
+    <div class="panel-h"><h2 id="todo-h">Saved from Visa Desk</h2><span class="note">Pin any answer to keep it with this search</span></div>
+    <div class="detail"><ul class="saved" id="saved"></ul></div>
+  </section>
+</main>
+
+<button class="launcher" id="launcher" hidden aria-controls="desk"><span class="dot"></span>Ask the Visa Desk</button>
+
+<aside class="desk" id="desk" data-open="true" aria-label="Visa Desk chat">
+  <div class="desk-h">
+    <div class="stamp">VISA</div>
+    <div><h2>Visa Desk</h2><small>US work visas, for your move</small></div>
+    <span class="mode" id="mode" title="How answers are produced">Guide</span>
+    <button class="icon-btn" id="desk-min" aria-label="Minimize chat"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="ctx">
+    <span>Asking about</span>
+    <select id="ctx-sel" aria-label="Role the answer should focus on"></select>
+  </div>
+  <div class="log" id="log" aria-live="polite"></div>
+  <div class="chips" id="chips"></div>
+  <form class="composer" id="composer">
+    <label for="q" hidden>Your question</label>
+    <textarea id="q" rows="1" placeholder="e.g. Can I start before the H-1B lottery?"></textarea>
+    <button class="send" id="send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h12M9 3l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </form>
+  <div class="disclaimer">General information, not legal advice. Rules change; confirm on uscis.gov before you act.</div>
+</aside>
+
+<script>
+(() => {
+  "use strict";
+  const TODAY = new Date(2026, 9, 26);
+  const $ = (s) => document.querySelector(s);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("wb:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem("wb:" + k, JSON.stringify(v)); } catch {} }
+  };
+
+  // ---------- Example data ----------
+  const STAGES = ["Saved", "Applied", "Interviewing", "Offer", "Closed"];
+  const JOBS = [
+    { id: "northbeam", company: "Northbeam Payments", role: "Senior ML Engineer", city: "San Francisco", stage: "Interviewing", next: "Onsite loop, 4 Nov", salary: 212000, color: "#2c5a9e",
+      sponsor: "h1b", sponsorNote: "Filed 40+ H-1B petitions last year; recruiter has not answered on the $100k payment", primary: "H-1B", alts: ["O-1A"] },
+    { id: "halcyon", company: "Halcyon Robotics", role: "Perception Engineer", city: "Palo Alto", stage: "Applied", next: "Recruiter screen pending", salary: 195000, color: "#1f7a5a",
+      sponsor: "l1", sponsorNote: "Has a Munich engineering office. Joining there first opens an L-1 transfer after 12 months", primary: "L-1", alts: ["H-1B"] },
+    { id: "bayline", company: "Bayline Climate Lab", role: "Research Scientist, Grid ML", city: "Berkeley", stage: "Interviewing", next: "Research talk, 11 Nov", salary: 168000, color: "#7a4fa0",
+      sponsor: "capexempt", sponsorNote: "Nonprofit affiliated with a UC campus: cap-exempt H-1B, no lottery", primary: "H-1B (cap-exempt)", alts: ["O-1A", "J-1"] },
+    { id: "kessler", company: "Kessler & Vogt Inc.", role: "Solutions Architect", city: "San Jose", stage: "Offer", next: "Offer expires 8 Nov", salary: 178000, color: "#c2412d",
+      sponsor: "e2", sponsorNote: "US subsidiary, 100% owned by a German parent company", ownerNation: "Germany", primary: "E-2", alts: ["L-1"] },
+    { id: "ferrous", company: "Ferrous AI", role: "Founding Engineer", city: "Mountain View", stage: "Saved", next: "Apply by 15 Nov", salary: 185000, color: "#5b6676",
+      sponsor: "none", sponsorNote: "12-person seed startup; job post says 'no visa sponsorship at this time'", primary: "O-1A", alts: [] },
+    { id: "tidewater", company: "Tidewater Bio", role: "Data Scientist", city: "South San Francisco", stage: "Closed", next: "Rejected after phone screen", salary: 165000, color: "#9a6200",
+      sponsor: "h1b", sponsorNote: "Sponsors H-1B for senior roles only", primary: "H-1B", alts: [] }
+  ];
+  const savedStages = store.get("stages", {});
+  JOBS.forEach(j => { if (savedStages[j.id]) j.stage = savedStages[j.id]; });
+
+  const profile = Object.assign({ cit: "Germany", deg: "eu-ms", fam: "partner", emp: "none" }, store.get("profile", {}));
+  let selectedId = store.get("selected", "northbeam");
+  let saved = store.get("saved", []);
+  const job = () => JOBS.find(j => j.id === selectedId) || JOBS[0];
+
+  const CONSULATE = { Germany: "Frankfurt, Berlin or Munich", France: "Paris", Italy: "Rome, Milan or Naples", Spain: "Madrid", Netherlands: "Amsterdam", Ireland: "Dublin", Poland: "Warsaw or Krakow", Sweden: "Stockholm" };
+  const DEG = { "eu-ms": "a Master's from an EU university", "us-ms": "a Master's from a US university", "eu-phd": "a PhD from an EU university", "bs": "a Bachelor's degree" };
+  const ADJ = { Germany: "German", France: "French", Italy: "Italian", Spain: "Spanish", Netherlands: "Dutch", Ireland: "Irish", Poland: "Polish", Sweden: "Swedish" };
+  const adj = (n) => ADJ[n] || n;
+  const fmtMoney = (n) => "$" + Math.round(n / 1000) + "k";
+
+  // ---------- Visa status per job, given the profile ----------
+  function status(j) {
+    switch (j.sponsor) {
+      case "h1b": return { cls: "p-warn", label: "H-1B lottery" };
+      case "capexempt": return { cls: "p-good", label: "Cap-exempt H-1B" };
+      case "l1": return { cls: "p-info", label: "L-1 after 1 yr" };
+      case "e2": return j.ownerNation === profile.cit ? { cls: "p-good", label: "E-2 eligible" } : { cls: "p-bad", label: "E-2 nationality mismatch" };
+      default: return { cls: "p-bad", label: "No sponsorship" };
+    }
+  }
+  // months from today to earliest realistic start, and a label
+  function earliest(j) {
+    switch (j.sponsor) {
+      case "h1b": return { months: 11, label: "Oct 1, 2027", why: "Registration in March 2027, then start on Oct 1 if selected" };
+      case "capexempt": return { months: 4, label: "Feb–Mar 2027", why: "No lottery; petition with premium processing, then a visa interview" };
+      case "e2": return j.ownerNation === profile.cit
+        ? { months: 3, label: "Jan–Feb 2027", why: "Apply at the consulate directly; no USCIS petition needed" }
+        : { months: 11, label: "Not via E-2", why: "E-2 needs you to share the company's treaty nationality" };
+      case "l1": return profile.emp === "us"
+        ? { months: 12, label: "Late 2027", why: "Needs 12 months with the company abroad first" }
+        : { months: 13, label: "Late 2027", why: "Join the Munich office, then transfer after 12 months" };
+      default: return { months: 5, label: "Mar 2027 (O-1A)", why: "Only if they agree to file an O-1A for you" };
+    }
+  }
+
+  // ---------- Render tracker ----------
+  function renderStages() {
+    $("#stages").innerHTML = STAGES.map(s => `<span class="stage-count">${s} <b>${JOBS.filter(j => j.stage === s).length}</b></span>`).join("");
+  }
+  function renderJobs() {
+    $("#jobs").innerHTML = JOBS.map(j => {
+      const st = status(j);
+      const initials = j.company.split(/\s+/).filter(w => /^[A-Z]/.test(w)).slice(0, 2).map(w => w[0]).join("");
+      return `<li class="job" role="option" tabindex="0" data-id="${j.id}" aria-selected="${j.id === selectedId}">
+        <div class="logo" style="background:${j.color}">${initials}</div>
+        <div class="job-main"><div class="job-title">${j.role}</div><div class="job-sub">${j.company} · ${j.city} · <span class="mono">${fmtMoney(j.salary)}</span></div></div>
+        <div class="job-side"><span class="pill ${st.cls}">${st.label}</span><span class="stage-tag">${j.stage}</span></div>
+      </li>`;
+    }).join("");
+  }
+  const ROUTE_BLURB = {
+    "H-1B": "Specialty occupation visa. Cap-subject employers enter a lottery each March.",
+    "H-1B (cap-exempt)": "Same visa, but universities and affiliated nonprofits file any time, no lottery.",
+    "O-1A": "Extraordinary ability. Needs evidence like publications, awards, judging, high pay.",
+    "L-1": "Intracompany transfer after 12 continuous months with the company abroad.",
+    "E-2": "Treaty employee of a company owned by your fellow nationals. Spouse can work.",
+    "J-1": "Research scholar route at the lab; may carry a 2-year home residency rule."
+  };
+  function renderDetail() {
+    const j = job(), st = status(j), e = earliest(j);
+    const pct = Math.min(100, Math.round(e.months / 14 * 100));
+    $("#stage-sel").innerHTML = STAGES.map(s => `<option ${s === j.stage ? "selected" : ""}>${s}</option>`).join("");
+    $("#detail").innerHTML = `
+      <div><h3>${j.role}</h3><div class="meta">${j.company} · ${j.city} · ${j.next}</div></div>
+      <dl class="kv">
+        <dt>Status</dt><dd><span class="pill ${st.cls}">${st.label}</span></dd>
+        <dt>Sponsorship</dt><dd>${j.sponsorNote}</dd>
+        <dt>Base salary</dt><dd class="mono">${fmtMoney(j.salary)} / yr</dd>
+      </dl>
+      <div>
+        <div class="eyebrow">Earliest start in San Francisco Bay Area</div>
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:6px"><b>${e.label}</b><span class="note">${e.why}</span></div>
+        <div class="timeline-bar" aria-hidden="true"><div class="tl-track"></div><div class="tl-fill" style="left:0;width:${pct}%"></div><div class="tl-dot" style="left:${pct}%"></div></div>
+        <div class="tl-labels"><span>Today · Oct 2026</span><span>Jun 2027</span><span>Dec 2027</span></div>
+      </div>
+      <div class="routes">
+        ${[j.primary, ...j.alts].map((r, i) => `<div class="route-row"><span class="visa-code">${r.replace(" (cap-exempt)", "")}</span><div><b>${i ? "Backup" : "Main route"}${r.includes("cap-exempt") ? " · cap-exempt" : ""}</b><p>${ROUTE_BLURB[r]}</p></div></div>`).join("")}
+      </div>
+      <button class="ask-btn" id="ask-job"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v8H6l-4 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Ask the Visa Desk about this role</button>`;
+    $("#ask-job").onclick = () => { openDesk(); ask(`What's my best visa route for the ${j.role} role at ${j.company}, and when could I realistically start?`); };
+  }
+  function renderSaved() {
+    const ul = $("#saved");
+    if (!saved.length) { ul.innerHTML = `<li class="empty" style="background:none;padding:0">Nothing pinned yet. Use “Pin to search” under any Visa Desk answer.</li>`; return; }
+    ul.innerHTML = saved.map((s, i) => `<li><input type="checkbox" id="sv-${i}" ${s.done ? "checked" : ""} data-i="${i}"><label for="sv-${i}"><b>${esc(s.q)}</b><br><span class="note">${esc(s.summary)} · ${esc(s.company)}</span></label></li>`).join("");
+  }
+  function renderCtx() {
+    $("#ctx-sel").innerHTML = JOBS.map(j => `<option value="${j.id}" ${j.id === selectedId ? "selected" : ""}>${j.company} · ${j.primary}</option>`).join("") + `<option value="all" ${selectedId === "all" ? "selected" : ""}>All my applications</option>`;
+  }
+  function renderAll() { renderStages(); renderJobs(); renderDetail(); renderCtx(); renderChips(); }
+
+  function select(id) { selectedId = id; store.set("selected", id); renderAll(); }
+  $("#jobs").addEventListener("click", (ev) => { const li = ev.target.closest(".job"); if (li) select(li.dataset.id); });
+  $("#jobs").addEventListener("keydown", (ev) => {
+    const li = ev.target.closest(".job"); if (!li) return;
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(li.dataset.id); }
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") { ev.preventDefault(); const sib = ev.key === "ArrowDown" ? li.nextElementSibling : li.previousElementSibling; if (sib) { select(sib.dataset.id); $(`.job[data-id="${sib.dataset.id}"]`).focus(); } }
+  });
+  $("#stage-sel").addEventListener("change", (ev) => { const j = job(); j.stage = ev.target.value; savedStages[j.id] = j.stage; store.set("stages", savedStages); renderStages(); renderJobs(); });
+  $("#ctx-sel").addEventListener("change", (ev) => { if (ev.target.value === "all") { selectedId = "all"; renderChips(); } else select(ev.target.value); });
+  $("#saved").addEventListener("change", (ev) => { const i = +ev.target.dataset.i; if (saved[i]) { saved[i].done = ev.target.checked; store.set("saved", saved); } });
+  ["cit", "deg", "fam", "emp"].forEach(k => {
+    const el = $("#p-" + k); el.value = profile[k];
+    el.addEventListener("change", () => {
+      profile[k] = el.value; store.set("profile", profile); renderAll();
+      sysNote(`Profile updated: ${k === "cit" ? "citizenship " + profile.cit : k === "deg" ? DEG[profile.deg] : k === "fam" ? "moving " + el.options[el.selectedIndex].text.toLowerCase() : "employer " + el.options[el.selectedIndex].text.toLowerCase()}. Answers now use this.`);
+    });
+  });
+
+  // ---------- Chat ----------
+  const log = $("#log");
+  const turns = [];        // for live mode
+  let sample = null, live = false, busy = false, ctl = null;
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function md(src) {
+    const inline = (t) => esc(t)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    const out = []; let list = null;
+    for (const raw of src.split("\n")) {
+      const line = raw.trim();
+      const m = line.match(/^(?:[-*•]|\d+[.)])\s+(.*)/);
+      if (m) { if (!list) { list = []; } list.push(`<li>${inline(m[1])}</li>`); continue; }
+      if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
+      if (line) out.push(`<p>${inline(line.replace(/^#+\s*/, ""))}</p>`);
+    }
+    if (list) out.push(`<ul>${list.join("")}</ul>`);
+    return out.join("");
+  }
+  function scrollDown() { log.scrollTop = log.scrollHeight; }
+  function addUser(text) { const d = document.createElement("div"); d.className = "msg user"; d.textContent = text; log.append(d); scrollDown(); }
+  function sysNote(text) { const d = document.createElement("div"); d.className = "src"; d.style.alignSelf = "center"; d.textContent = text; log.append(d); scrollDown(); }
+  function addBot() {
+    const d = document.createElement("div"); d.className = "msg bot";
+    d.innerHTML = `<div class="body"><span class="thinking" aria-label="Thinking"><i></i><i></i><i></i></span></div><div class="foot" hidden></div>`;
+    log.append(d); scrollDown(); return d;
+  }
+  function finishBot(el, text, { sources = [], q = "", company = "" } = {}) {
+    el.querySelector(".body").innerHTML = md(text);
+    const foot = el.querySelector(".foot"); foot.hidden = false;
+    const pin = document.createElement("button"); pin.className = "mini"; pin.type = "button"; pin.textContent = "Pin to search"; pin.setAttribute("aria-pressed", "false");
+    pin.onclick = () => {
+      if (pin.getAttribute("aria-pressed") === "true") return;
+      const first = text.replace(/\*\*/g, "").split(/\n/).find(l => l.trim()) || "";
+      saved.unshift({ q, summary: first.slice(0, 140) + (first.length > 140 ? "…" : ""), company, done: false });
+      saved = saved.slice(0, 12); store.set("saved", saved); renderSaved();
+      pin.setAttribute("aria-pressed", "true"); pin.textContent = "Pinned";
+    };
+    foot.append(pin);
+    if (sources.length) { const s = document.createElement("span"); s.className = "src"; s.innerHTML = "Sources: " + sources.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(" · "); foot.append(s); }
+    scrollDown();
+  }
+
+  // Suggested questions follow the role in focus
+  function renderChips() {
+    const j = selectedId === "all" ? null : job();
+    let qs;
+    if (!j) qs = ["Which of my roles gets me to SF fastest?", "How does the H-1B lottery work now?", "Can my spouse work in the US?"];
+    else if (j.sponsor === "h1b") qs = [`What are my lottery odds for ${j.company}?`, "Does the $100k H-1B fee apply to me?", "Could I get an O-1A instead?", "Can I work remotely until October?"];
+    else if (j.sponsor === "capexempt") qs = ["Why is this one cap-exempt?", "How fast could I start?", "Can I switch to a startup later?", "Can my spouse work?"];
+    else if (j.sponsor === "e2") qs = ["Am I eligible for E-2 here?", "What happens at the consulate interview?", "Can my spouse work on E-2?", "Does E-2 lead to a green card?"];
+    else if (j.sponsor === "l1") qs = ["How does an L-1 transfer work?", "Is a year in Munich worth it?", "L-1A vs L-1B?", "Can my spouse work on L-2?"];
+    else qs = ["Could I qualify for an O-1A?", "How do I ask a startup to sponsor me?", "Can I fly over for interviews on ESTA?"];
+    $("#chips").innerHTML = qs.map(q => `<button type="button" class="chip">${esc(q)}</button>`).join("");
+  }
+  $("#chips").addEventListener("click", (ev) => { const c = ev.target.closest(".chip"); if (c) ask(c.textContent); });
+
+  // ---------- Offline guide: grounded answers keyed to profile + role ----------
+  const SRC = {
+    h1b: ["USCIS · H-1B cap season", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations-and-fashion-models/h-1b-cap-season"],
+    fee: ["USCIS · H-1B proclamation", "https://www.uscis.gov/newsroom/alerts/h-1b-specialty-occupations"],
+    o1: ["USCIS · O-1", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement"],
+    l1: ["USCIS · L-1A/L-1B", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/l-1b-intracompany-transferee-specialized-knowledge"],
+    e2: ["State Dept · treaty countries", "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/fees/treaty.html"],
+    capx: ["USCIS · cap exemptions", "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"],
+    esta: ["CBP · ESTA", "https://www.cbp.gov/travel/international-visitors/esta"],
+    wait: ["State Dept · visa wait times", "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/global-visa-wait-times.html"],
+    wage: ["DOL · FLAG wage search", "https://flag.dol.gov/wage-data/wage-search"],
+    gc: ["USCIS · EB-2 / NIW", "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-second-preference-eb-2"]
+  };
+  function spouseLine(route) {
+    if (profile.fam === "alone") return "";
+    const who = profile.fam === "family" ? "Your spouse and kids" : "Your spouse";
+    const r = {
+      "H-1B": `${who} would come on **H-4**. Your spouse can only work once you have an approved I-140 (green card step), so plan for 1–2+ years without their income.`,
+      "E-2": `${who} would come on **E-2 dependent** status, and your spouse is authorized to work incident to status. No separate permit needed.`,
+      "L-1": `${who} would come on **L-2**, and your spouse can work incident to status from arrival.`,
+      "O-1A": `${who} would come on **O-3**, which does not allow work at all.`
+    }[route];
+    return r || "";
+  }
+  function guide(q, j) {
+    const t = q.toLowerCase();
+    const c = profile.cit, deg = profile.deg;
+    const advDeg = deg === "us-ms";
+    const has = (re) => re.test(t);
+    const name = j ? `${j.company}` : "your roles";
+
+    if (has(/100k|100,000|100 000|fee|proclamation|payment/)) return {
+      text: `Probably yes, and it matters for ${j && j.sponsor === "h1b" ? j.company : "any H-1B employer"}.\n\n- A September 2025 proclamation requires a **$100,000 payment** with new H-1B petitions for workers who are **outside the US** without a valid H-1B visa. You are in Berlin, so a new petition for you would normally be hit.\n- People already in the US changing status (e.g. F-1 students) are not covered, which is why some employers now prefer local candidates.\n- As published guidance reads, cap-exempt employers like Bayline are not carved out, so ask them too.\n- The fee is the employer's to pay. Ask your recruiter directly, in writing, whether they will cover it before you spend weeks on an onsite.\n\nThis rule is being litigated and was still changing in 2026. Check the current status on uscis.gov before you rely on it.`,
+      sources: [SRC.fee, SRC.h1b] };
+
+    if (has(/lottery|odds|chance|registration|selected|weighted|\bcap\b/) && !has(/exempt/)) {
+      const lvl = j && j.salary >= 200000 ? "likely **Level IV** (the highest)" : "likely **Level III**";
+      return {
+        text: `The next H-1B registration runs in **March 2027** (for FY2028). If selected, the earliest start is **October 1, 2027**.\n\n- Since FY2027, selection is **weighted by wage level**. A Level IV offer gets four entries, Level I gets one.\n- ${j ? `${j.company}'s ${fmtMoney(j.salary)} offer in the SF area is ${lvl}, which improves your odds a lot compared with the old random draw.` : "A senior Bay Area salary usually lands at Level III or IV."}\n- ${advDeg ? "Your US Master's also gives you a second shot in the advanced-degree draw (20,000 extra visas)." : `You have ${DEG[deg]}. Only US advanced degrees count for the extra 20,000 advanced-degree visas, so you are in the regular draw only.`}\n- If you are not selected, the employer can try again the next March.\n\nAsk ${j ? j.company : "the employer"} which wage level they will register you at; it is the single biggest factor you can influence.`,
+        sources: [SRC.h1b, SRC.wage] };
+    }
+
+    if (has(/o-?1|extraordinary/)) return {
+      text: `The **O-1A** has no lottery and no annual cap, so it is the fastest route with a startup like Ferrous or as a backup for ${name}.\n\nYou need to meet **3 of 8 criteria**. For an ML engineer the realistic ones are:\n- Published papers or a well-cited open-source project\n- Judging others' work (conference reviewing counts)\n- Original contributions of major significance (patents, widely used systems)\n- A high salary compared with peers (${j ? fmtMoney(j.salary) : "a Bay Area senior salary"} helps)\n- Press coverage or membership in a selective association\n\nWith premium processing a decision takes about 15 business days, plus a visa interview in ${CONSULATE[c]}. Building the evidence file usually takes 1–3 months. ${spouseLine("O-1A")}`,
+      sources: [SRC.o1] };
+
+    if (has(/l-?1|l-?2|transfer|intracompany|munich|year in/)) return {
+      text: `An **L-1** lets a company move you from its office abroad to the US. You need **12 continuous months** with that company abroad in the last 3 years.\n\n- ${profile.emp === "us" ? "Your current employer has a US office, so you may already be most of the way there. Ask HR about a transfer to a Bay Area team." : "Your current employer has no US office, so for Halcyon this means joining their Munich office first and transferring in late 2027."}\n- **L-1B** is for specialized knowledge (up to 5 years). **L-1A** is for managers (up to 7 years) and has a fast green-card path through EB-1C.\n- No lottery, and the $100k H-1B payment does not apply.\n- ${spouseLine("L-1") || "No dependent questions for you, since you are moving alone."}\n\nA year in Munich costs time, but it is the most predictable route on your list if Halcyon commits to the transfer in your offer letter.`,
+      sources: [SRC.l1] };
+
+    if (has(/e-?2|treaty|german[- ]owned|kessler|eligible here/)) {
+      const ok = !j || !j.ownerNation || j.ownerNation === c;
+      return {
+        text: ok
+          ? `${c} has an **E-2 treaty** with the US. ${j && j.ownerNation ? `${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen, so you match.` : "You would need an employer at least 50% owned by people (or a company) of your nationality."}\n\n- You apply **directly at the US consulate** (${CONSULATE[c]}). No USCIS petition and no lottery, so start dates in **Jan–Feb 2027** are realistic.\n- You must be an executive, manager, or have **essential skills**. A solutions architect role usually qualifies under essential skills if the job needs knowledge of the parent's products.\n- Visas are often issued for up to 5 years and are renewable while the role lasts.\n- ${spouseLine("E-2") || "You are moving alone, so no dependents to file."}\n\nOne catch: E-2 does not lead to a green card by itself. You would switch to an employer-sponsored green card later.`
+          : `This route does not work for you as things stand. **E-2 needs the employee and the company's owners to share the same treaty nationality.** ${j.company} is ${adj(j.ownerNation)}-owned, and you are a ${adj(c)} citizen.\n\n- ${c} does have an E-2 treaty, so a ${adj(c)}-owned company in the Bay Area would work.\n- Second nationality? If you also hold ${j.ownerNation} citizenship, that counts.\n- Otherwise ${j.company} would need to sponsor an **H-1B** (March 2027 lottery) or an **L-1** (after a year at the parent company).\n\nAsk whether they would hire you at the German parent first, which keeps the L-1 option open.`,
+        sources: [SRC.e2] };
+    }
+
+    if (has(/cap[- ]?exempt|why is this|university|nonprofit|switch to a startup/)) return {
+      text: `Universities, their **affiliated nonprofits**, and government research organizations can file H-1Bs **any time of year with no lottery**. Bayline counts because of its formal affiliation with a UC campus.\n\n- Timeline: petition with premium processing (about 15 business days), then a visa interview in ${CONSULATE[c]}. A **Feb–Mar 2027** start is realistic.\n- Catch: if you later move to a for-profit startup, that employer must enter the lottery for you. Your cap-exempt years do not count as a cap number.\n- You can work for a cap-subject company *concurrently* only if you keep the cap-exempt job.\n- ${spouseLine("H-1B")}\n\nConfirm the affiliation in writing and ask whether they cover the $100k payment for people abroad.`,
+      sources: [SRC.capx, SRC.fee] };
+
+    if (has(/spouse|partner|wife|husband|family|kids|children|h-?4|dependent/)) return {
+      text: profile.fam === "alone" ? `Your profile says you are moving alone. If that changes:\n\n- **E-2 and L-1 spouses** can work from day one.\n- **H-1B spouses (H-4)** can only work after your green-card I-140 is approved.\n- **O-1 spouses (O-3)** cannot work.` :
+        `Whether your spouse can work depends on your route, so it is worth weighing in your choice:\n\n- **E-2 (Kessler & Vogt):** spouse can work immediately.\n- **L-1 (Halcyon via Munich):** spouse on L-2 can work immediately.\n- **H-1B (Northbeam, Bayline):** spouse on H-4 can work only after your I-140 is approved, often 1–2+ years in.\n- **O-1A:** spouse on O-3 cannot work.\n${profile.fam === "family" ? "\nChildren under 21 get the matching dependent status on every route and can attend public school." : ""}\nIf your spouse has their own job offer, they could also apply for their own visa.`,
+      sources: [SRC.l1, SRC.e2] };
+
+    if (has(/esta|interview|onsite|fly|visit|b-?1|travel/)) return {
+      text: `Yes. As a ${adj(c)} citizen you can use **ESTA** (Visa Waiver Program) to fly over for interviews and onsites.\n\n- Interviewing, negotiating and visiting offices are allowed. **Doing any actual work is not**, even a paid trial day.\n- Stays are up to 90 days. Keep return tickets and your interview invitation handy at the border.\n- ESTA costs $40 and is valid for 2 years. Apply at least 72 hours before you fly.\n- Do not use ESTA to start the job early "while the visa processes". That can get you banned from the program.\n\nFor ${j ? j.company + "'s " + j.next.toLowerCase() : "your onsites"}, ESTA is the normal way in.`,
+      sources: [SRC.esta] };
+
+    if (has(/green card|permanent|niw|eb-?[12]|citizenship/)) return {
+      text: `Good news for EU citizens: there is **no per-country backlog** for ${c}, unlike India or China.\n\n- **EB-2 NIW** (National Interest Waiver) lets you self-petition without an employer. ML work in climate or health is a common fit.\n- **EB-1A** is the green-card cousin of the O-1A; stronger evidence needed.\n- On **H-1B or L-1**, your employer can start a green card any time. H-1B and L-1 allow "dual intent".\n- **E-2 is not dual intent**, so filing a green card while on E-2 can complicate visa renewals.\n- The diversity lottery is also open to most EU nationals; it is free to enter each October.`,
+      sources: [SRC.gc] };
+
+    if (has(/remote|work from|start early|while i wait|until october|eor|contractor/)) return {
+      text: `Yes, and many Bay Area companies offer it during the H-1B wait.\n\n- ${j ? j.company : "The company"} can hire you **in ${c}** through its local entity or an **Employer of Record** (Deel, Remote, etc.) on a local contract, with local tax and social insurance.\n- Working remotely for a US company from Europe needs **no US visa**, since you are not in the US.\n- Do not work from the US on ESTA. Short business trips for meetings are fine.\n- If the lottery fails in March 2027, your remote job continues and they can try again next year or move you through an L-1 if they have a European office.\n\nAsk for the remote arrangement and the H-1B commitment in the same offer letter.`,
+      sources: [SRC.h1b] };
+
+    if (has(/consulate|appointment|stamp|embassy|ds-?160|visa interview/)) return {
+      text: `Your interview would be at the US consulate in **${CONSULATE[c]}**.\n\n- Fill in the **DS-160** online, pay the fee, then book an appointment. Waits in Europe are usually a few weeks, but they spike in summer.\n- Bring: passport, approval notice (I-797) or E-2 company file, offer letter, degree certificates, and CV.\n- Most applicants get a decision at the window. Some get **221(g)** administrative processing, which can add weeks.\n- Since 2025 interview waivers are rare, so plan on going in person.\n\nCheck current wait times on travel.state.gov before you set a start date.`,
+      sources: [SRC.wait] };
+
+    if (has(/salary|wage|prevailing|rent|cost of living|expensive|money/)) return {
+      text: `${j ? `${fmtMoney(j.salary)} at ${j.company} in ${j.city}` : "A Bay Area senior salary"} goes less far than it sounds from Berlin:\n\n- One-bedroom rent: about **$3,000–3,800/month** in SF or the Peninsula.\n- Federal + California tax on a $200k salary is roughly 33–35% effective.\n- Health insurance is through your employer; ask about the family plan cost.\n\nFor visas, salary matters in two ways: H-1B employers must pay at least the **prevailing wage** for the role and location, and since FY2027 a higher wage level means **more lottery entries**. You can look up wage levels on the DOL FLAG site.`,
+      sources: [SRC.wage] };
+
+    if (has(/fastest|which of my|compare|best|route|when|start|timeline|how long|how fast|sponsor/)) {
+      if (!j || has(/which of my|compare|fastest/)) {
+        const ranked = JOBS.filter(x => x.stage !== "Closed").map(x => ({ x, e: earliest(x) })).sort((a, b) => a.e.months - b.e.months);
+        return {
+          text: `Ranked by earliest realistic start, for a ${adj(c)} citizen with ${DEG[deg]}:\n\n${ranked.map(({ x, e }) => `- **${x.company}** (${x.primary}): ${e.label}. ${e.why}.`).join("\n")}\n\n${ranked[0].x.sponsor === "e2" ? `Your ${ranked[0].x.company} offer is the only one that avoids both the lottery and the $100k H-1B payment. Its deadline is ${ranked[0].x.next.replace("Offer expires ", "")}.` : `Your fastest option is ${ranked[0].x.company}.`}`,
+          sources: [SRC.h1b, SRC.e2] };
+      }
+      const e = earliest(j), st = status(j);
+      const route = j.primary.startsWith("H-1B") ? "H-1B" : j.primary;
+      const body = {
+        h1b: `${j.company} sponsors H-1B, so your main route is the **March 2027 lottery**, with a start on **October 1, 2027** if selected. Two things to settle with them now:\n- Will they pay the **$100k payment** that applies to petitions for people abroad?\n- Will they hire you remotely from ${c} until October, and register you again if you are not picked?\n\nBackup: an **O-1A** has no lottery and could start in spring 2027 if your publications and reviewing record are strong enough.`,
+        capexempt: `${j.company} is **cap-exempt**, so there is no lottery. They can file now and you could start around **${e.label}**.\nKeep in mind the $100k payment question applies here too, and moving to a for-profit later puts you back in the lottery.`,
+        e2: st.cls === "p-good" ? `This is your strongest route. ${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen, so you qualify as an **E-2 treaty employee**. You apply straight at the consulate in ${CONSULATE[c]}, with a realistic start in **${e.label}**.\nNo lottery and no $100k H-1B payment.` : `E-2 does **not** work: ${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen. Ask about joining the parent company in ${j.ownerNation} first, which opens an **L-1** after 12 months.`,
+        l1: `The route is an **L-1 transfer**: ${profile.emp === "us" ? "your current employer already has a US office, but Halcyon would need you on its own payroll abroad for 12 months" : "join Halcyon's Munich office, then transfer after 12 continuous months"}. That puts you in the Bay Area around **${e.label}**. You could also ask them to register you in the March 2027 H-1B lottery as a parallel shot.`,
+        none: `${j.company} says it does not sponsor visas. Your realistic route is an **O-1A**, which a 12-person startup may agree to if you bring a ready evidence file and an immigration lawyer's estimate (roughly $8–12k in fees). An alternative is a remote contract from ${c} first.`
+      }[j.sponsor];
+      return { text: body + (spouseLine(route) ? `\n\n${spouseLine(route)}` : ""), sources: j.sponsor === "e2" ? [SRC.e2] : j.sponsor === "l1" ? [SRC.l1] : j.sponsor === "none" ? [SRC.o1] : [SRC.h1b, SRC.fee] };
+    }
+
+    return {
+      text: `I can help with anything about getting from ${c} to a Bay Area job. Some things I can answer for your profile:\n\n- Which visa fits each role you are tracking, and when you could start\n- The H-1B lottery, the $100k payment, and cap-exempt employers\n- O-1A, L-1 and E-2 alternatives\n- What your spouse can do, ESTA for interviews, and green cards\n\nTry asking about ${j ? j.company : "one of your roles"} or pick a suggestion below.`,
+      sources: [] };
+  }
+
+  // ---------- Live mode (Claude) ----------
+  function rules() {
+    const fam = { partner: "moving with a spouse", alone: "moving alone", family: "moving with a spouse and children" }[profile.fam];
+    const jobs = JOBS.map(j => `- ${j.company} | ${j.role} | ${j.city} | stage: ${j.stage} | base ${fmtMoney(j.salary)} | ${j.sponsorNote}${j.ownerNation ? ` | owned by ${j.ownerNation} nationals` : ""} | main route ${j.primary}`).join("\n");
+    const focus = selectedId === "all" ? "All applications (compare them)." : `${job().company}, ${job().role}`;
+    return `You are the Visa Desk inside Westbound, a job tracker for Europeans relocating to the San Francisco Bay Area. Today is 26 October 2026.
+Answer the user's questions about US work visas and relocation for THEIR situation, using the profile and tracked roles below. Be concrete: name the visa, the timeline in months/dates from today, and what to ask the employer.
+Style: under 200 words. Short paragraphs and "- " bullets, **bold** for key terms. No headings, no tables, no emoji. Plain, direct sentences.
+Accuracy: you are not a lawyer. Where rules changed recently or are in litigation (the Sept 2025 proclamation requiring a $100,000 payment on new H-1B petitions for workers outside the US; wage-weighted H-1B selection starting with the FY2027 registration in March 2026; fees and processing times), say so briefly and point to uscis.gov or travel.state.gov. Suggest an immigration attorney only when a decision has real stakes, in one short line.
+Key facts: next H-1B registration March 2027, earliest cap start Oct 1 2027; only US master's degrees count for the advanced-degree cap; cap-exempt employers (universities, affiliated nonprofits) file year-round; E-2 needs the employee to share the employer's treaty nationality (>=50% ownership); L-1 needs 12 continuous months abroad with the company; spouses work on E-2 and L-2, not on O-3, and on H-4 only after an approved I-140; ESTA allows interviews but no work.
+If a question is off-topic, answer in one line and steer back.
+
+USER PROFILE: Lena Hoffmann, ${adj(profile.cit)} citizen living in Berlin, ML engineer with 6 years' experience, ${DEG[profile.deg]}, ${fam}. Current employer: ${profile.emp === "us" ? "has a US office" : "has no US office"}.
+TRACKED ROLES:
+${jobs}
+ROLE IN FOCUS: ${focus}`;
+  }
+
+  function setBusy(b) {
+    busy = b;
+    const s = $("#send");
+    s.innerHTML = b ? `<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/></svg>` : `<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h12M9 3l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    s.setAttribute("aria-label", b ? "Stop" : "Send");
+    s.type = b ? "button" : "submit";
+  }
+
+  async function ask(q) {
+    q = q.trim(); if (!q || busy) return;
+    addUser(q); $("#q").value = ""; autosize();
+    const j = selectedId === "all" ? null : job();
+    const company = j ? j.company : "All roles";
+    const el = addBot();
+    setBusy(true);
+
+    if (live && sample) {
+      turns.push({ role: "user", content: q });
+      while (turns.length > 12) turns.shift();
+      ctl = new AbortController();
+      try {
+        const { text } = await sample([{ role: "user", content: rules() }, ...turns], {
+          cache: false, signal: ctl.signal,
+          onText: ({ text }) => { el.querySelector(".body").innerHTML = md(text); scrollDown(); }
+        });
+        turns.push({ role: "assistant", content: text });
+        finishBot(el, text, { q, company });
+      } catch (e) {
+        turns.pop();
+        if (e && e.code === "cancelled") { finishBot(el, (e.text || "") + "\n\nStopped.", { q, company }); }
+        else {
+          if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e && e.code)) { live = false; setMode(); }
+          const g = guide(q, j);
+          finishBot(el, (e && e.code === "rate_limited" ? "Live answers are paused for a moment, so here is the built-in guide:\n\n" : "") + g.text, { sources: g.sources, q, company });
+        }
+      } finally { setBusy(false); ctl = null; }
+      return;
+    }
+
+    // Offline guide: short pause so it reads like a reply
+    setTimeout(() => { const g = guide(q, j); finishBot(el, g.text, { sources: g.sources, q, company }); setBusy(false); }, 650);
+  }
+
+  function setMode() {
+    const m = $("#mode");
+    m.textContent = live ? "Live · Claude" : "Guide";
+    m.title = live ? "Answers are written by Claude using your profile and tracked roles" : "Answers come from Westbound's built-in visa guide";
+  }
+
+  // ---------- Composer + open/close ----------
+  const qEl = $("#q");
+  function autosize() { qEl.style.height = "auto"; qEl.style.height = Math.min(qEl.scrollHeight, 120) + "px"; }
+  qEl.addEventListener("input", autosize);
+  qEl.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); ask(qEl.value); } });
+  $("#composer").addEventListener("submit", (ev) => { ev.preventDefault(); ask(qEl.value); });
+  $("#send").addEventListener("click", (ev) => { if (busy) { ev.preventDefault(); ctl?.abort(); } });
+
+  function openDesk() { $("#desk").dataset.open = "true"; $("#launcher").hidden = true; setTimeout(() => qEl.focus({ preventScroll: true }), 50); }
+  function closeDesk() { $("#desk").dataset.open = "false"; $("#launcher").hidden = false; $("#launcher").focus(); }
+  $("#desk-min").onclick = closeDesk;
+  $("#launcher").onclick = openDesk;
+  if (window.matchMedia("(max-width: 560px)").matches) { $("#desk").dataset.open = "false"; $("#launcher").hidden = false; }
+
+  // ---------- Boot ----------
+  renderAll(); renderSaved(); setMode();
+  const welcome = addBot();
+  finishBot(welcome, `Hi Lena. I'm looking at your **${job().company}** application. It depends on the **${job().primary}** route.\n\nAsk me anything about visas for your move, like whether the new H-1B fee applies to you, or which offer gets you to San Francisco first.`, { q: "Welcome", company: job().company });
+  welcome.querySelector(".foot").hidden = true;
+
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("sample").then((s) => { if (s) { sample = s; live = true; setMode(); } }).catch(() => {});
+  }
+})();
+</script>
