@@ -111,9 +111,9 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
 .kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; margin: 0; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; }
-.visa-code { font: 500 13px/1 var(--f-mono); padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); }
+.visa-code { font: 500 13px/1 var(--f-mono); white-space: nowrap; padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); }
 .routes { display: grid; gap: 8px; }
-.route-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
+.route-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
 .route-row .visa-code { justify-self: start; align-self: start; }
 .route-row b { font-size: 14px; }
 .route-row p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
@@ -189,6 +189,7 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   .job { grid-template-columns: 30px minmax(0, 1fr); }
   .job-side { grid-column: 2; flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap; }
 }
+@media (min-width: 1440px) { body:has(.desk[data-open="true"]) main.wrap { margin-right: 460px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 
@@ -198,7 +199,7 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
       <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15 Q13 5 21 15" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21" cy="15" r="2.2" fill="var(--accent)"/></svg>
       Westbound
     </div>
-    <span class="route">BER → SFO</span>
+    <span class="route">MUC → SFO</span>
     <nav aria-label="Sections">
       <a href="#" aria-current="page">Applications</a>
       <a href="#">Relocation</a>
@@ -210,39 +211,39 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
 <main class="wrap">
   <section class="intro">
     <div>
-      <div class="eyebrow">Your Bay Area search · example data</div>
-      <h1>Six roles, four visa routes</h1>
-      <p>Every application is tracked with the visa route it depends on. Ask the Visa Desk anything about your situation; it knows your profile and the role you are looking at.</p>
+      <div class="eyebrow">Your first Bay Area job · example data</div>
+      <h1>Six applications, six ways in</h1>
+      <p>Internships, new-grad roles, a graduate programme and a US Master's, each tracked with the visa it depends on. Ask the Visa Desk anything; it knows your profile and the application you are looking at.</p>
     </div>
   </section>
 
   <section class="profile" aria-label="Your profile">
-    <div class="who"><div class="avatar">LH</div><div><b>Lena Hoffmann</b><span>ML engineer · Berlin · 6 yrs</span></div></div>
+    <div class="who"><div class="avatar">LH</div><div><b>Lena Hoffmann, 24</b><span>CS Master's student · Munich</span></div></div>
     <label for="p-cit">Citizenship
       <select id="p-cit">
         <option>Germany</option><option>France</option><option>Italy</option><option>Spain</option>
         <option>Netherlands</option><option>Ireland</option><option>Poland</option><option>Sweden</option>
       </select>
     </label>
-    <label for="p-deg">Highest degree
-      <select id="p-deg">
-        <option value="eu-ms">Master's (EU university)</option>
+    <label for="p-edu">Studies
+      <select id="p-edu">
+        <option value="ms-student">Final-year Master's (EU)</option>
+        <option value="bs-student">Final-year Bachelor's (EU)</option>
+        <option value="bs-grad">Bachelor's graduate (EU)</option>
         <option value="us-ms">Master's (US university)</option>
-        <option value="eu-phd">PhD (EU university)</option>
-        <option value="bs">Bachelor's</option>
+      </select>
+    </label>
+    <label for="p-exp">Work experience
+      <select id="p-exp">
+        <option value="none">Internships only</option>
+        <option value="1yr">1+ year full-time</option>
       </select>
     </label>
     <label for="p-fam">Moving with
       <select id="p-fam">
-        <option value="partner">Spouse</option>
         <option value="alone">Just me</option>
-        <option value="family">Spouse + kids</option>
-      </select>
-    </label>
-    <label for="p-emp">Current employer
-      <select id="p-emp">
-        <option value="none">No US office</option>
-        <option value="us">Has a US office</option>
+        <option value="partner">Partner (not married)</option>
+        <option value="spouse">Spouse</option>
       </select>
     </label>
   </section>
@@ -283,7 +284,7 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   <div class="chips" id="chips"></div>
   <form class="composer" id="composer">
     <label for="q" hidden>Your question</label>
-    <textarea id="q" rows="1" placeholder="e.g. Can I start before the H-1B lottery?"></textarea>
+    <textarea id="q" rows="1" placeholder="e.g. Can I do a US internship on a J-1?"></textarea>
     <button class="send" id="send" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h12M9 3l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </form>
   <div class="disclaimer">General information, not legal advice. Rules change; confirm on uscis.gov before you act.</div>
@@ -292,7 +293,7 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
 <script>
 (() => {
   "use strict";
-  const TODAY = new Date(2026, 9, 26);
+  const TODAY = new Date(2026, 9, 29);
   const $ = (s) => document.querySelector(s);
   const store = {
     get(k, d) { try { const v = localStorage.getItem("wb:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -302,55 +303,61 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   // ---------- Example data ----------
   const STAGES = ["Saved", "Applied", "Interviewing", "Offer", "Closed"];
   const JOBS = [
-    { id: "northbeam", company: "Northbeam Payments", role: "Senior ML Engineer", city: "San Francisco", stage: "Interviewing", next: "Onsite loop, 4 Nov", salary: 212000, color: "#2c5a9e",
-      sponsor: "h1b", sponsorNote: "Filed 40+ H-1B petitions last year; recruiter has not answered on the $100k payment", primary: "H-1B", alts: ["O-1A"] },
-    { id: "halcyon", company: "Halcyon Robotics", role: "Perception Engineer", city: "Palo Alto", stage: "Applied", next: "Recruiter screen pending", salary: 195000, color: "#1f7a5a",
-      sponsor: "l1", sponsorNote: "Has a Munich engineering office. Joining there first opens an L-1 transfer after 12 months", primary: "L-1", alts: ["H-1B"] },
-    { id: "bayline", company: "Bayline Climate Lab", role: "Research Scientist, Grid ML", city: "Berkeley", stage: "Interviewing", next: "Research talk, 11 Nov", salary: 168000, color: "#7a4fa0",
-      sponsor: "capexempt", sponsorNote: "Nonprofit affiliated with a UC campus: cap-exempt H-1B, no lottery", primary: "H-1B (cap-exempt)", alts: ["O-1A", "J-1"] },
-    { id: "kessler", company: "Kessler & Vogt Inc.", role: "Solutions Architect", city: "San Jose", stage: "Offer", next: "Offer expires 8 Nov", salary: 178000, color: "#c2412d",
-      sponsor: "e2", sponsorNote: "US subsidiary, 100% owned by a German parent company", ownerNation: "Germany", primary: "E-2", alts: ["L-1"] },
-    { id: "ferrous", company: "Ferrous AI", role: "Founding Engineer", city: "Mountain View", stage: "Saved", next: "Apply by 15 Nov", salary: 185000, color: "#5b6676",
-      sponsor: "none", sponsorNote: "12-person seed startup; job post says 'no visa sponsorship at this time'", primary: "O-1A", alts: [] },
-    { id: "tidewater", company: "Tidewater Bio", role: "Data Scientist", city: "South San Francisco", stage: "Closed", next: "Rejected after phone screen", salary: 165000, color: "#9a6200",
-      sponsor: "h1b", sponsorNote: "Sponsors H-1B for senior roles only", primary: "H-1B", alts: [] }
+    { id: "northbeam", company: "Northbeam Payments", role: "Software Engineering Intern, Summer 2027", city: "San Francisco", stage: "Interviewing", next: "Technical interview, 4 Nov", pay: "$9.5k / month", color: "#2c5a9e",
+      sponsor: "j1", sponsorNote: "Hires European interns through a J-1 sponsor organisation and pays its fees. 12 weeks, June to August", primary: "J-1 Intern", alts: [] },
+    { id: "halcyon", company: "Halcyon Robotics", role: "New Grad Software Engineer", city: "Palo Alto", stage: "Interviewing", next: "Final round, 6 Nov", pay: "$150k / yr", color: "#1f7a5a",
+      sponsor: "h1b", sponsorNote: "Sponsors H-1B for new grads; has not said whether it covers the $100k payment", primary: "H-1B", alts: ["J-1 Trainee"] },
+    { id: "bayline", company: "Bayline Climate Lab", role: "Research Assistant, Grid ML", city: "Berkeley", stage: "Applied", next: "Research chat, 11 Nov", pay: "$72k / yr", color: "#7a4fa0",
+      sponsor: "capexempt", sponsorNote: "UC-affiliated nonprofit: can file a cap-exempt H-1B or host you on a J-1 research visa", primary: "H-1B (cap-exempt)", alts: ["J-1 Research"] },
+    { id: "kessler", company: "Kessler & Vogt Inc.", role: "Graduate Programme, Solutions Engineering", city: "San Jose", stage: "Offer", next: "Offer expires 8 Nov", pay: "$98k / yr", color: "#c2412d",
+      sponsor: "e2", sponsorNote: "US subsidiary, 100% owned by a German parent company. Two-year graduate programme, April 2027 intake", ownerNation: "Germany", primary: "E-2", alts: ["J-1 Trainee"] },
+    { id: "peninsula", company: "Peninsula University", role: "MS in Computer Science, Fall 2027", city: "Palo Alto", stage: "Applied", next: "Admission decision by 15 Mar", pay: "Tuition ~$65k / yr", color: "#9a6200",
+      sponsor: "f1", sponsorNote: "Study route: F-1 student visa, then up to 3 years of work on STEM OPT", primary: "F-1 + OPT", alts: ["H-1B"] },
+    { id: "ferrous", company: "Ferrous AI", role: "Growth Associate", city: "Mountain View", stage: "Saved", next: "Apply by 15 Nov", pay: "$95k + equity", color: "#5b6676",
+      sponsor: "none", sponsorNote: "15-person startup; job post says 'no visa sponsorship at this time'", primary: "Remote first", alts: ["J-1 Trainee"] }
   ];
-  const savedStages = store.get("stages", {});
+  const savedStages = store.get("stages2", {});
   JOBS.forEach(j => { if (savedStages[j.id]) j.stage = savedStages[j.id]; });
 
-  const profile = Object.assign({ cit: "Germany", deg: "eu-ms", fam: "partner", emp: "none" }, store.get("profile", {}));
-  let selectedId = store.get("selected", "northbeam");
-  let saved = store.get("saved", []);
+  const profile = Object.assign({ cit: "Germany", edu: "ms-student", exp: "none", fam: "alone" }, store.get("profile2", {}));
+  let selectedId = store.get("selected2", "northbeam");
+  let saved = store.get("saved2", []);
   const job = () => JOBS.find(j => j.id === selectedId) || JOBS[0];
 
   const CONSULATE = { Germany: "Frankfurt, Berlin or Munich", France: "Paris", Italy: "Rome, Milan or Naples", Spain: "Madrid", Netherlands: "Amsterdam", Ireland: "Dublin", Poland: "Warsaw or Krakow", Sweden: "Stockholm" };
-  const DEG = { "eu-ms": "a Master's from an EU university", "us-ms": "a Master's from a US university", "eu-phd": "a PhD from an EU university", "bs": "a Bachelor's degree" };
+  const EDU = { "ms-student": "a final-year Master's student at an EU university", "bs-student": "a final-year Bachelor's student at an EU university", "bs-grad": "a recent Bachelor's graduate from an EU university", "us-ms": "a Master's graduate from a US university" };
   const ADJ = { Germany: "German", France: "French", Italy: "Italian", Spain: "Spanish", Netherlands: "Dutch", Ireland: "Irish", Poland: "Polish", Sweden: "Swedish" };
   const adj = (n) => ADJ[n] || n;
-  const fmtMoney = (n) => "$" + Math.round(n / 1000) + "k";
+  const j1InternOk = () => profile.edu !== "us-ms";
+  const j1TraineeOk = () => profile.exp === "1yr" && profile.edu !== "bs-student" && profile.edu !== "ms-student";
 
   // ---------- Visa status per job, given the profile ----------
   function status(j) {
     switch (j.sponsor) {
+      case "j1": return j1InternOk() ? { cls: "p-good", label: "J-1 intern eligible" } : { cls: "p-bad", label: "J-1 intern not eligible" };
       case "h1b": return { cls: "p-warn", label: "H-1B lottery" };
       case "capexempt": return { cls: "p-good", label: "Cap-exempt H-1B" };
-      case "l1": return { cls: "p-info", label: "L-1 after 1 yr" };
-      case "e2": return j.ownerNation === profile.cit ? { cls: "p-good", label: "E-2 eligible" } : { cls: "p-bad", label: "E-2 nationality mismatch" };
+      case "e2": return j.ownerNation === profile.cit ? { cls: "p-good", label: "E-2 possible" } : { cls: "p-bad", label: "E-2 nationality mismatch" };
+      case "f1": return { cls: "p-info", label: "Study route" };
       default: return { cls: "p-bad", label: "No sponsorship" };
     }
   }
-  // months from today to earliest realistic start, and a label
+  // months from today to earliest realistic start in the Bay Area, and a label
   function earliest(j) {
+    const student = profile.edu === "ms-student" || profile.edu === "bs-student";
     switch (j.sponsor) {
-      case "h1b": return { months: 11, label: "Oct 1, 2027", why: "Registration in March 2027, then start on Oct 1 if selected" };
-      case "capexempt": return { months: 4, label: "Feb–Mar 2027", why: "No lottery; petition with premium processing, then a visa interview" };
+      case "j1": return j1InternOk()
+        ? { months: 8, label: "Jun 2027", why: "12-week internship; J-1 paperwork takes 2–3 months" }
+        : { months: 14, label: "Not via J-1", why: "J-1 interns need a non-US degree in progress or finished in the last 12 months" };
+      case "h1b": return { months: 11, label: "Oct 1, 2027", why: "March 2027 lottery; new-grad wage levels get fewer entries" };
+      case "capexempt": return student
+        ? { months: 7, label: "May 2027", why: "No lottery; starts once you finish your degree" }
+        : { months: 4, label: "Feb–Mar 2027", why: "No lottery; petition, then a visa interview" };
       case "e2": return j.ownerNation === profile.cit
-        ? { months: 3, label: "Jan–Feb 2027", why: "Apply at the consulate directly; no USCIS petition needed" }
-        : { months: 11, label: "Not via E-2", why: "E-2 needs you to share the company's treaty nationality" };
-      case "l1": return profile.emp === "us"
-        ? { months: 12, label: "Late 2027", why: "Needs 12 months with the company abroad first" }
-        : { months: 13, label: "Late 2027", why: "Join the Munich office, then transfer after 12 months" };
-      default: return { months: 5, label: "Mar 2027 (O-1A)", why: "Only if they agree to file an O-1A for you" };
+        ? { months: 5, label: "Apr 2027", why: "Programme intake; E-2 is decided at the consulate in weeks" }
+        : { months: 14, label: "Not via E-2", why: "E-2 needs you to share the company's treaty nationality" };
+      case "f1": return { months: 10, label: "Aug 2027", why: "Arrive to study; paid full-time work comes through OPT after graduating" };
+      default: return { months: 14, label: "No US start yet", why: "They could hire you remotely in Europe; moving needs a sponsor" };
     }
   }
 
@@ -364,18 +371,20 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
       const initials = j.company.split(/\s+/).filter(w => /^[A-Z]/.test(w)).slice(0, 2).map(w => w[0]).join("");
       return `<li class="job" role="option" tabindex="0" data-id="${j.id}" aria-selected="${j.id === selectedId}">
         <div class="logo" style="background:${j.color}">${initials}</div>
-        <div class="job-main"><div class="job-title">${j.role}</div><div class="job-sub">${j.company} · ${j.city} · <span class="mono">${fmtMoney(j.salary)}</span></div></div>
+        <div class="job-main"><div class="job-title">${j.role}</div><div class="job-sub">${j.company} · ${j.city} · <span class="mono">${j.pay}</span></div></div>
         <div class="job-side"><span class="pill ${st.cls}">${st.label}</span><span class="stage-tag">${j.stage}</span></div>
       </li>`;
     }).join("");
   }
   const ROUTE_BLURB = {
-    "H-1B": "Specialty occupation visa. Cap-subject employers enter a lottery each March.",
+    "J-1 Intern": "Exchange visa for students and grads within 12 months of finishing. Up to 12 months, through a sponsor organisation.",
+    "J-1 Trainee": "For graduates with 1+ year of work experience outside the US. Up to 18 months of structured training.",
+    "J-1 Research": "Research scholar visa hosted by the lab. Check your DS-2019 for the 2-year home residency rule.",
+    "H-1B": "Work visa for degree jobs. Most employers enter a lottery each March; higher wage levels get more entries.",
     "H-1B (cap-exempt)": "Same visa, but universities and affiliated nonprofits file any time, no lottery.",
-    "O-1A": "Extraordinary ability. Needs evidence like publications, awards, judging, high pay.",
-    "L-1": "Intracompany transfer after 12 continuous months with the company abroad.",
-    "E-2": "Treaty employee of a company owned by your fellow nationals. Spouse can work.",
-    "J-1": "Research scholar route at the lab; may carry a 2-year home residency rule."
+    "E-2": "Treaty employee of a company owned by your fellow nationals. Junior roles must show essential skills.",
+    "F-1 + OPT": "Study on a student visa, then work up to 3 years on STEM OPT and enter the H-1B lottery from inside the US.",
+    "Remote first": "Work for them from Europe through an Employer of Record. No US visa needed until they sponsor one."
   };
   function renderDetail() {
     const j = job(), st = status(j), e = earliest(j);
@@ -385,8 +394,8 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
       <div><h3>${j.role}</h3><div class="meta">${j.company} · ${j.city} · ${j.next}</div></div>
       <dl class="kv">
         <dt>Status</dt><dd><span class="pill ${st.cls}">${st.label}</span></dd>
-        <dt>Sponsorship</dt><dd>${j.sponsorNote}</dd>
-        <dt>Base salary</dt><dd class="mono">${fmtMoney(j.salary)} / yr</dd>
+        <dt>Visa note</dt><dd>${j.sponsorNote}</dd>
+        <dt>Pay</dt><dd class="mono">${j.pay}</dd>
       </dl>
       <div>
         <div class="eyebrow">Earliest start in San Francisco Bay Area</div>
@@ -397,8 +406,8 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
       <div class="routes">
         ${[j.primary, ...j.alts].map((r, i) => `<div class="route-row"><span class="visa-code">${r.replace(" (cap-exempt)", "")}</span><div><b>${i ? "Backup" : "Main route"}${r.includes("cap-exempt") ? " · cap-exempt" : ""}</b><p>${ROUTE_BLURB[r]}</p></div></div>`).join("")}
       </div>
-      <button class="ask-btn" id="ask-job"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v8H6l-4 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Ask the Visa Desk about this role</button>`;
-    $("#ask-job").onclick = () => { openDesk(); ask(`What's my best visa route for the ${j.role} role at ${j.company}, and when could I realistically start?`); };
+      <button class="ask-btn" id="ask-job"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v8H6l-4 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Ask the Visa Desk about this</button>`;
+    $("#ask-job").onclick = () => { openDesk(); ask(`What's my best visa route for ${j.role} at ${j.company}, and when could I realistically start?`); };
   }
   function renderSaved() {
     const ul = $("#saved");
@@ -410,21 +419,21 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   }
   function renderAll() { renderStages(); renderJobs(); renderDetail(); renderCtx(); renderChips(); }
 
-  function select(id) { selectedId = id; store.set("selected", id); renderAll(); }
+  function select(id) { selectedId = id; store.set("selected2", id); renderAll(); }
   $("#jobs").addEventListener("click", (ev) => { const li = ev.target.closest(".job"); if (li) select(li.dataset.id); });
   $("#jobs").addEventListener("keydown", (ev) => {
     const li = ev.target.closest(".job"); if (!li) return;
     if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(li.dataset.id); }
     if (ev.key === "ArrowDown" || ev.key === "ArrowUp") { ev.preventDefault(); const sib = ev.key === "ArrowDown" ? li.nextElementSibling : li.previousElementSibling; if (sib) { select(sib.dataset.id); $(`.job[data-id="${sib.dataset.id}"]`).focus(); } }
   });
-  $("#stage-sel").addEventListener("change", (ev) => { const j = job(); j.stage = ev.target.value; savedStages[j.id] = j.stage; store.set("stages", savedStages); renderStages(); renderJobs(); });
+  $("#stage-sel").addEventListener("change", (ev) => { const j = job(); j.stage = ev.target.value; savedStages[j.id] = j.stage; store.set("stages2", savedStages); renderStages(); renderJobs(); });
   $("#ctx-sel").addEventListener("change", (ev) => { if (ev.target.value === "all") { selectedId = "all"; renderChips(); } else select(ev.target.value); });
-  $("#saved").addEventListener("change", (ev) => { const i = +ev.target.dataset.i; if (saved[i]) { saved[i].done = ev.target.checked; store.set("saved", saved); } });
-  ["cit", "deg", "fam", "emp"].forEach(k => {
+  $("#saved").addEventListener("change", (ev) => { const i = +ev.target.dataset.i; if (saved[i]) { saved[i].done = ev.target.checked; store.set("saved2", saved); } });
+  ["cit", "edu", "exp", "fam"].forEach(k => {
     const el = $("#p-" + k); el.value = profile[k];
     el.addEventListener("change", () => {
-      profile[k] = el.value; store.set("profile", profile); renderAll();
-      sysNote(`Profile updated: ${k === "cit" ? "citizenship " + profile.cit : k === "deg" ? DEG[profile.deg] : k === "fam" ? "moving " + el.options[el.selectedIndex].text.toLowerCase() : "employer " + el.options[el.selectedIndex].text.toLowerCase()}. Answers now use this.`);
+      profile[k] = el.value; store.set("profile2", profile); renderAll();
+      sysNote(`Profile updated: ${k === "cit" ? "citizenship " + profile.cit : el.options[el.selectedIndex].text}. Answers now use this.`);
     });
   });
 
@@ -466,7 +475,7 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
       if (pin.getAttribute("aria-pressed") === "true") return;
       const first = text.replace(/\*\*/g, "").split(/\n/).find(l => l.trim()) || "";
       saved.unshift({ q, summary: first.slice(0, 140) + (first.length > 140 ? "…" : ""), company, done: false });
-      saved = saved.slice(0, 12); store.set("saved", saved); renderSaved();
+      saved = saved.slice(0, 12); store.set("saved2", saved); renderSaved();
       pin.setAttribute("aria-pressed", "true"); pin.textContent = "Pinned";
     };
     foot.append(pin);
@@ -477,13 +486,15 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   // Suggested questions follow the role in focus
   function renderChips() {
     const j = selectedId === "all" ? null : job();
+    const c = profile.cit;
     let qs;
-    if (!j) qs = ["Which of my roles gets me to SF fastest?", "How does the H-1B lottery work now?", "Can my spouse work in the US?"];
-    else if (j.sponsor === "h1b") qs = [`What are my lottery odds for ${j.company}?`, "Does the $100k H-1B fee apply to me?", "Could I get an O-1A instead?", "Can I work remotely until October?"];
-    else if (j.sponsor === "capexempt") qs = ["Why is this one cap-exempt?", "How fast could I start?", "Can I switch to a startup later?", "Can my spouse work?"];
-    else if (j.sponsor === "e2") qs = ["Am I eligible for E-2 here?", "What happens at the consulate interview?", "Can my spouse work on E-2?", "Does E-2 lead to a green card?"];
-    else if (j.sponsor === "l1") qs = ["How does an L-1 transfer work?", "Is a year in Munich worth it?", "L-1A vs L-1B?", "Can my spouse work on L-2?"];
-    else qs = ["Could I qualify for an O-1A?", "How do I ask a startup to sponsor me?", "Can I fly over for interviews on ESTA?"];
+    if (!j) qs = ["Which of my applications gets me to SF fastest?", "Should I do a US Master's first?", "Can my partner come with me?"];
+    else if (j.sponsor === "j1") qs = ["How does the J-1 intern visa work?", "Can I stay after the internship?", "Is $9.5k a month enough in SF?", "Can I fly over for interviews on ESTA?"];
+    else if (j.sponsor === "h1b") qs = ["What are my lottery odds as a new grad?", "Does the $100k H-1B fee apply to me?", "Could a US Master's improve my odds?", "Can I work remotely until October?"];
+    else if (j.sponsor === "capexempt") qs = ["Why is this one cap-exempt?", "H-1B or J-1 for a research job?", "Is $72k enough to live in Berkeley?", "Can I switch to a startup later?"];
+    else if (j.sponsor === "e2") qs = ["Am I eligible for E-2 here?", "Can a junior role get an E-2?", "What happens at the consulate interview?", "Can my partner come with me?"];
+    else if (j.sponsor === "f1") qs = ["How does F-1 to OPT to H-1B work?", "Can I work while I study?", "Does a US Master's help in the lottery?", "Does the $100k fee apply to students?"];
+    else qs = [`Can I work for them remotely from ${c}?`, "How do I ask a startup to sponsor me?", "Am I eligible for a J-1 trainee visa?"];
     $("#chips").innerHTML = qs.map(q => `<button type="button" class="chip">${esc(q)}</button>`).join("");
   }
   $("#chips").addEventListener("click", (ev) => { const c = ev.target.closest(".chip"); if (c) ask(c.textContent); });
@@ -492,130 +503,145 @@ main.wrap { padding-block: 24px 120px; display: grid; gap: 20px; }
   const SRC = {
     h1b: ["USCIS · H-1B cap season", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations-and-fashion-models/h-1b-cap-season"],
     fee: ["USCIS · H-1B proclamation", "https://www.uscis.gov/newsroom/alerts/h-1b-specialty-occupations"],
+    j1: ["State Dept · J-1 intern & trainee", "https://j1visa.state.gov/programs/intern"],
+    f1: ["Study in the States · OPT", "https://studyinthestates.dhs.gov/students/train/learn-about-training-opportunities-for-f-1-students"],
     o1: ["USCIS · O-1", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement"],
-    l1: ["USCIS · L-1A/L-1B", "https://www.uscis.gov/working-in-the-united-states/temporary-workers/l-1b-intracompany-transferee-specialized-knowledge"],
     e2: ["State Dept · treaty countries", "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/fees/treaty.html"],
-    capx: ["USCIS · cap exemptions", "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"],
+    capx: ["USCIS · H-1B", "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"],
     esta: ["CBP · ESTA", "https://www.cbp.gov/travel/international-visitors/esta"],
     wait: ["State Dept · visa wait times", "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/global-visa-wait-times.html"],
-    wage: ["DOL · FLAG wage search", "https://flag.dol.gov/wage-data/wage-search"],
-    gc: ["USCIS · EB-2 / NIW", "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-second-preference-eb-2"]
+    wage: ["DOL · FLAG wage search", "https://flag.dol.gov/wage-data/wage-search"]
   };
-  function spouseLine(route) {
+  function partnerLine(route) {
     if (profile.fam === "alone") return "";
-    const who = profile.fam === "family" ? "Your spouse and kids" : "Your spouse";
-    const r = {
-      "H-1B": `${who} would come on **H-4**. Your spouse can only work once you have an approved I-140 (green card step), so plan for 1–2+ years without their income.`,
-      "E-2": `${who} would come on **E-2 dependent** status, and your spouse is authorized to work incident to status. No separate permit needed.`,
-      "L-1": `${who} would come on **L-2**, and your spouse can work incident to status from arrival.`,
-      "O-1A": `${who} would come on **O-3**, which does not allow work at all.`
-    }[route];
-    return r || "";
+    if (profile.fam === "partner") return `Your partner gets **no dependent visa** unless you are married; only legal spouses qualify. They can visit on ESTA for up to 90 days at a time, or need their own visa.`;
+    return {
+      "H-1B": "Your spouse would come on **H-4** and can only work once you have an approved green-card I-140, usually years away.",
+      "E-2": "Your spouse would come as an **E-2 dependent** and can work right away.",
+      "J-1": "Your spouse would come on **J-2** and can apply for a work permit (EAD) after arriving.",
+      "F-1": "Your spouse would come on **F-2** and cannot work.",
+      "L-1": "Your spouse would come on **L-2** and can work right away."
+    }[route] || "";
   }
   function guide(q, j) {
     const t = q.toLowerCase();
-    const c = profile.cit, deg = profile.deg;
-    const advDeg = deg === "us-ms";
+    const c = profile.cit, edu = profile.edu;
+    const student = edu === "ms-student" || edu === "bs-student";
     const has = (re) => re.test(t);
-    const name = j ? `${j.company}` : "your roles";
+    const name = j ? j.company : "your applications";
 
-    if (has(/100k|100,000|100 000|fee|proclamation|payment/)) return {
-      text: `Probably yes, and it matters for ${j && j.sponsor === "h1b" ? j.company : "any H-1B employer"}.\n\n- A September 2025 proclamation requires a **$100,000 payment** with new H-1B petitions for workers who are **outside the US** without a valid H-1B visa. You are in Berlin, so a new petition for you would normally be hit.\n- People already in the US changing status (e.g. F-1 students) are not covered, which is why some employers now prefer local candidates.\n- As published guidance reads, cap-exempt employers like Bayline are not carved out, so ask them too.\n- The fee is the employer's to pay. Ask your recruiter directly, in writing, whether they will cover it before you spend weeks on an onsite.\n\nThis rule is being litigated and was still changing in 2026. Check the current status on uscis.gov before you rely on it.`,
-      sources: [SRC.fee, SRC.h1b] };
+    if (has(/100k|100,000|100 000|fee|proclamation/)) return {
+      text: `It depends on where you are when the petition is filed.\n\n- A September 2025 proclamation requires a **$100,000 payment** with new H-1B petitions for people **outside the US**. Applying from ${c} straight into a job like Halcyon's would normally be hit, and the employer pays it, not you.\n- **Students already in the US are not covered.** If you come on F-1 and switch to H-1B from inside the US after OPT, there is no $100k payment. That is one reason a US Master's has become more attractive.\n- J-1 and E-2 visas have no such payment.\n\nAsk ${j && j.sponsor === "h1b" ? j.company : "any H-1B employer"} in writing whether they will cover it before your final round. The rule was being challenged in court through 2026, so check uscis.gov for the current status.`,
+      sources: [SRC.fee, SRC.f1] };
 
-    if (has(/lottery|odds|chance|registration|selected|weighted|\bcap\b/) && !has(/exempt/)) {
-      const lvl = j && j.salary >= 200000 ? "likely **Level IV** (the highest)" : "likely **Level III**";
+    if (has(/cap[- ]?exempt|why is this one|research|nonprofit|switch to a startup/)) return {
+      text: `Universities and their **affiliated nonprofits** can file H-1Bs **any time of year with no lottery**. Bayline counts because of its formal link to a UC campus.\n\n- **Cap-exempt H-1B:** ${student ? "once you have your degree, " : ""}a start in **${earliest(JOBS.find(x => x.sponsor === "capexempt")).label}** is realistic. Up to 6 years and it allows a later green card.\n- **J-1 research scholar:** often cheaper and faster for the lab. Check whether your DS-2019 carries the **2-year home residency rule**; for most EU citizens it does not, unless the funding is government money.\n- Catch: moving to a for-profit startup later puts you back in the March lottery.\n\n${partnerLine("H-1B")}\nAsk Bayline which one they usually use for research assistants.`,
+      sources: [SRC.capx, SRC.j1] };
+
+    if (has(/j-?1|intern|trainee|exchange|work and travel|iwt|summer work/)) {
+      const irish = c === "Ireland" ? `\n\nAs an Irish citizen you also have the **J-1 Intern Work and Travel** programme: graduates within 12 months can come for up to a year and find the job after arriving.` : "";
+      if (has(/trainee/) || (j && j.sponsor === "none")) return {
+        text: j1TraineeOk()
+          ? `Yes, you look eligible for a **J-1 Trainee** visa: you have a degree and 1+ year of full-time experience outside the US.\n\n- Up to **18 months** of structured training, with a written training plan (form DS-7002).\n- The company does not file anything with USCIS. A designated **J-1 sponsor organisation** handles it, usually for a fee of a few thousand dollars.\n- It is training, not a regular job, so the role must teach you something and not replace a US worker.\n\nThis is a good ask for a startup like Ferrous that won't do an H-1B.${irish}`
+          : `Not yet. A **J-1 Trainee** needs a degree **plus at least 1 year of full-time work in your field outside the US** (or 5 years without a degree).\n\n- With internships only, the **J-1 Intern** category fits you instead, as long as you are still studying or graduated in the last 12 months.\n- One year at a European company after graduating would make you eligible for the trainee route, up to 18 months.${irish}`,
+        sources: [SRC.j1] };
       return {
-        text: `The next H-1B registration runs in **March 2027** (for FY2028). If selected, the earliest start is **October 1, 2027**.\n\n- Since FY2027, selection is **weighted by wage level**. A Level IV offer gets four entries, Level I gets one.\n- ${j ? `${j.company}'s ${fmtMoney(j.salary)} offer in the SF area is ${lvl}, which improves your odds a lot compared with the old random draw.` : "A senior Bay Area salary usually lands at Level III or IV."}\n- ${advDeg ? "Your US Master's also gives you a second shot in the advanced-degree draw (20,000 extra visas)." : `You have ${DEG[deg]}. Only US advanced degrees count for the extra 20,000 advanced-degree visas, so you are in the regular draw only.`}\n- If you are not selected, the employer can try again the next March.\n\nAsk ${j ? j.company : "the employer"} which wage level they will register you at; it is the single biggest factor you can influence.`,
-        sources: [SRC.h1b, SRC.wage] };
+        text: j1InternOk()
+          ? `The **J-1 Intern** visa is the usual way for European students to do a US internship.\n\n- You qualify while you are **studying, or within 12 months of graduating** from a non-US university. You are ${EDU[edu]}, so you fit.\n- ${j && j.sponsor === "j1" ? j.company : "The company"} works with a **sponsor organisation** that issues your DS-2019. You then pay the SEVIS fee, book an interview in ${CONSULATE[c]}, and get the visa. Allow **2–3 months**.\n- Health insurance is required for the whole stay.\n- **Staying after:** you get a 30-day grace period. A return offer usually means the H-1B lottery the next March, or coming back via a US Master's.\n\n${partnerLine("J-1")}${irish}`
+          : `With a US Master's you are not eligible for the **J-1 Intern** visa, which is for students and recent graduates of non-US universities. You likely have better options: **OPT** after your US degree lets you work for up to 3 years in STEM fields.`,
+        sources: [SRC.j1] };
     }
+
+    if (has(/f-?1|\bopt\b|cpt|study|student visa|master's|masters|grad school/)) return {
+      text: `A US Master's is the most common route for young Europeans, and it has got stronger since 2025.\n\n- **F-1 student visa** for the programme. You can work on campus up to 20 hours a week during term, and do internships through **CPT**.\n- After graduating, **OPT** gives you 12 months of work, plus **24 more for STEM** degrees like CS: up to **3 years** without a sponsor.\n- During OPT your employer can enter you in the H-1B lottery **up to three times**. A US Master's also gives you a **second draw** in the advanced-degree lottery.\n- Switching from F-1 inside the US avoids the **$100k payment** for people abroad.\n\nCosts are the catch: tuition plus Bay Area rent can pass $100k a year. Proposed rules on OPT and student visa length were also pending in 2026, so check before you commit.\n\n${partnerLine("F-1")}`,
+      sources: [SRC.f1, SRC.h1b] };
+
+    if (has(/lottery|odds|chance|registration|selected|weighted|\bcap\b/)) return {
+      text: `The next H-1B registration runs in **March 2027**; if selected, the earliest start is **October 1, 2027**.\n\n- Since FY2027 the draw is **weighted by wage level**. New-grad offers are usually **Level I or II**, which means one or two entries, while senior engineers get four. So your odds are lower than the headline numbers suggest.\n- ${edu === "us-ms" ? "Your US Master's gives you a second draw in the advanced-degree lottery, which helps a lot." : "Only US degrees count for the advanced-degree lottery, so with an EU degree you are in the regular draw only."}\n- ${edu === "bs-student" ? "You must have finished your degree by the time the petition is filed (April–June 2027)." : "If you are not picked, the employer can try again the next year."}\n\nAsk ${j && j.sponsor === "h1b" ? j.company : "the employer"} which wage level they will register you at, and whether they offer a remote job in ${c} while you wait.`,
+      sources: [SRC.h1b, SRC.wage] };
 
     if (has(/o-?1|extraordinary/)) return {
-      text: `The **O-1A** has no lottery and no annual cap, so it is the fastest route with a startup like Ferrous or as a backup for ${name}.\n\nYou need to meet **3 of 8 criteria**. For an ML engineer the realistic ones are:\n- Published papers or a well-cited open-source project\n- Judging others' work (conference reviewing counts)\n- Original contributions of major significance (patents, widely used systems)\n- A high salary compared with peers (${j ? fmtMoney(j.salary) : "a Bay Area senior salary"} helps)\n- Press coverage or membership in a selective association\n\nWith premium processing a decision takes about 15 business days, plus a visa interview in ${CONSULATE[c]}. Building the evidence file usually takes 1–3 months. ${spouseLine("O-1A")}`,
+      text: `The **O-1A** has no lottery, but it is hard at the start of a career. You need **3 of 8 criteria**, such as:\n- Papers at strong venues or a widely used open-source project\n- Awards, olympiad medals or competition wins\n- Judging others' work (hackathon judge, paper reviewer)\n- Press coverage, or a salary well above peers\n\nSome founders and researchers in their 20s get it, but most new grads do better with a **J-1**, a **US Master's**, or the **H-1B lottery**.`,
       sources: [SRC.o1] };
 
-    if (has(/l-?1|l-?2|transfer|intracompany|munich|year in/)) return {
-      text: `An **L-1** lets a company move you from its office abroad to the US. You need **12 continuous months** with that company abroad in the last 3 years.\n\n- ${profile.emp === "us" ? "Your current employer has a US office, so you may already be most of the way there. Ask HR about a transfer to a Bay Area team." : "Your current employer has no US office, so for Halcyon this means joining their Munich office first and transferring in late 2027."}\n- **L-1B** is for specialized knowledge (up to 5 years). **L-1A** is for managers (up to 7 years) and has a fast green-card path through EB-1C.\n- No lottery, and the $100k H-1B payment does not apply.\n- ${spouseLine("L-1") || "No dependent questions for you, since you are moving alone."}\n\nA year in Munich costs time, but it is the most predictable route on your list if Halcyon commits to the transfer in your offer letter.`,
-      sources: [SRC.l1] };
-
-    if (has(/e-?2|treaty|german[- ]owned|kessler|eligible here/)) {
-      const ok = !j || !j.ownerNation || j.ownerNation === c;
+    if (has(/e-?2|treaty|junior|kessler|eligible here/)) {
+      const k = j && j.ownerNation ? j : JOBS.find(x => x.sponsor === "e2");
+      const ok = k.ownerNation === c;
       return {
         text: ok
-          ? `${c} has an **E-2 treaty** with the US. ${j && j.ownerNation ? `${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen, so you match.` : "You would need an employer at least 50% owned by people (or a company) of your nationality."}\n\n- You apply **directly at the US consulate** (${CONSULATE[c]}). No USCIS petition and no lottery, so start dates in **Jan–Feb 2027** are realistic.\n- You must be an executive, manager, or have **essential skills**. A solutions architect role usually qualifies under essential skills if the job needs knowledge of the parent's products.\n- Visas are often issued for up to 5 years and are renewable while the role lasts.\n- ${spouseLine("E-2") || "You are moving alone, so no dependents to file."}\n\nOne catch: E-2 does not lead to a green card by itself. You would switch to an employer-sponsored green card later.`
-          : `This route does not work for you as things stand. **E-2 needs the employee and the company's owners to share the same treaty nationality.** ${j.company} is ${adj(j.ownerNation)}-owned, and you are a ${adj(c)} citizen.\n\n- ${c} does have an E-2 treaty, so a ${adj(c)}-owned company in the Bay Area would work.\n- Second nationality? If you also hold ${j.ownerNation} citizenship, that counts.\n- Otherwise ${j.company} would need to sponsor an **H-1B** (March 2027 lottery) or an **L-1** (after a year at the parent company).\n\nAsk whether they would hire you at the German parent first, which keeps the L-1 option open.`,
-        sources: [SRC.e2] };
+          ? `Probably, and it is your fastest route. ${k.company} is ${adj(k.ownerNation)}-owned and you are a ${adj(c)} citizen, so you meet the **nationality** test.\n\n- You apply **directly at the consulate** in ${CONSULATE[c]}. No lottery, no $100k payment.\n- **The catch for junior roles:** E-2 employees must be managers or have **essential skills**. A graduate programme can qualify if the company shows your skills (for example, knowledge of the German parent's products and language) are hard to find in the US. Consulates do refuse junior E-2 cases.\n- Ask ${k.company} whether earlier graduate-programme hires got E-2 visas. If not, a **J-1 Trainee** spot is the usual fallback.\n\n${partnerLine("E-2")}`
+          : `Not as things stand. **E-2 needs you to share the company's treaty nationality.** ${k.company} is ${adj(k.ownerNation)}-owned and you are a ${adj(c)} citizen.\n\n- If you also hold ${adj(k.ownerNation)} citizenship, that counts.\n- A ${adj(c)}-owned company in the Bay Area would work, since ${c} has an E-2 treaty.\n- Otherwise ask ${k.company} about a **J-1 Trainee** placement, or starting at the parent company in ${k.ownerNation}.`,
+        sources: [SRC.e2, SRC.j1] };
     }
 
-    if (has(/cap[- ]?exempt|why is this|university|nonprofit|switch to a startup/)) return {
-      text: `Universities, their **affiliated nonprofits**, and government research organizations can file H-1Bs **any time of year with no lottery**. Bayline counts because of its formal affiliation with a UC campus.\n\n- Timeline: petition with premium processing (about 15 business days), then a visa interview in ${CONSULATE[c]}. A **Feb–Mar 2027** start is realistic.\n- Catch: if you later move to a for-profit startup, that employer must enter the lottery for you. Your cap-exempt years do not count as a cap number.\n- You can work for a cap-subject company *concurrently* only if you keep the cap-exempt job.\n- ${spouseLine("H-1B")}\n\nConfirm the affiliation in writing and ask whether they cover the $100k payment for people abroad.`,
-      sources: [SRC.capx, SRC.fee] };
-
-    if (has(/spouse|partner|wife|husband|family|kids|children|h-?4|dependent/)) return {
-      text: profile.fam === "alone" ? `Your profile says you are moving alone. If that changes:\n\n- **E-2 and L-1 spouses** can work from day one.\n- **H-1B spouses (H-4)** can only work after your green-card I-140 is approved.\n- **O-1 spouses (O-3)** cannot work.` :
-        `Whether your spouse can work depends on your route, so it is worth weighing in your choice:\n\n- **E-2 (Kessler & Vogt):** spouse can work immediately.\n- **L-1 (Halcyon via Munich):** spouse on L-2 can work immediately.\n- **H-1B (Northbeam, Bayline):** spouse on H-4 can work only after your I-140 is approved, often 1–2+ years in.\n- **O-1A:** spouse on O-3 cannot work.\n${profile.fam === "family" ? "\nChildren under 21 get the matching dependent status on every route and can attend public school." : ""}\nIf your spouse has their own job offer, they could also apply for their own visa.`,
-      sources: [SRC.l1, SRC.e2] };
-
-    if (has(/esta|interview|onsite|fly|visit|b-?1|travel/)) return {
-      text: `Yes. As a ${adj(c)} citizen you can use **ESTA** (Visa Waiver Program) to fly over for interviews and onsites.\n\n- Interviewing, negotiating and visiting offices are allowed. **Doing any actual work is not**, even a paid trial day.\n- Stays are up to 90 days. Keep return tickets and your interview invitation handy at the border.\n- ESTA costs $40 and is valid for 2 years. Apply at least 72 hours before you fly.\n- Do not use ESTA to start the job early "while the visa processes". That can get you banned from the program.\n\nFor ${j ? j.company + "'s " + j.next.toLowerCase() : "your onsites"}, ESTA is the normal way in.`,
+    if (has(/partner|spouse|girlfriend|boyfriend|wife|husband|together|married/)) return {
+      text: profile.fam === "spouse"
+        ? `It depends on your visa:\n\n- **E-2:** spouse can work right away.\n- **J-1:** spouse on J-2 can apply for a work permit.\n- **H-1B:** spouse on H-4 can only work after your green-card I-140 is approved.\n- **F-1:** spouse on F-2 cannot work.\n\nIf your spouse has their own offer, they can apply for their own visa instead.`
+        : `Only **married spouses** get dependent visas. An unmarried partner, even after years together, does not.\n\n- They can visit on **ESTA** for up to 90 days at a time, but cannot work or live there.\n- They can get their own visa: a job offer, a J-1 internship, or a student visa.\n- Some couples marry before moving for this reason. Your spouse could then come with you, though work rights depend on your visa (E-2 and J-1 spouses can work, H-4 and F-2 mostly cannot).`,
       sources: [SRC.esta] };
 
-    if (has(/green card|permanent|niw|eb-?[12]|citizenship/)) return {
-      text: `Good news for EU citizens: there is **no per-country backlog** for ${c}, unlike India or China.\n\n- **EB-2 NIW** (National Interest Waiver) lets you self-petition without an employer. ML work in climate or health is a common fit.\n- **EB-1A** is the green-card cousin of the O-1A; stronger evidence needed.\n- On **H-1B or L-1**, your employer can start a green card any time. H-1B and L-1 allow "dual intent".\n- **E-2 is not dual intent**, so filing a green card while on E-2 can complicate visa renewals.\n- The diversity lottery is also open to most EU nationals; it is free to enter each October.`,
-      sources: [SRC.gc] };
+    if (has(/esta|interview|onsite|fly|visit|b-?1|travel/)) return {
+      text: `Yes. As a ${adj(c)} citizen you can use **ESTA** (Visa Waiver Program) to fly over for interviews and onsites.\n\n- Interviewing, networking and visiting offices are allowed. **Doing any actual work is not**, even a paid trial day.\n- Stays are up to 90 days. Keep your return ticket and interview invitation handy at the border.\n- ESTA costs $40, lasts 2 years, and should be done at least 72 hours before you fly.\n- Don't use it to start an internship "while the visa comes through". That can get you banned from ESTA.`,
+      sources: [SRC.esta] };
 
-    if (has(/remote|work from|start early|while i wait|until october|eor|contractor/)) return {
-      text: `Yes, and many Bay Area companies offer it during the H-1B wait.\n\n- ${j ? j.company : "The company"} can hire you **in ${c}** through its local entity or an **Employer of Record** (Deel, Remote, etc.) on a local contract, with local tax and social insurance.\n- Working remotely for a US company from Europe needs **no US visa**, since you are not in the US.\n- Do not work from the US on ESTA. Short business trips for meetings are fine.\n- If the lottery fails in March 2027, your remote job continues and they can try again next year or move you through an L-1 if they have a European office.\n\nAsk for the remote arrangement and the H-1B commitment in the same offer letter.`,
-      sources: [SRC.h1b] };
+    if (has(/remote|work from|until october|eor|while i wait|contractor/)) return {
+      text: `Yes. Lots of Bay Area startups hire Europeans this way first.\n\n- ${j ? j.company : "The company"} can employ you **in ${c}** through an **Employer of Record** (a service like Deel or Remote) on a local contract, with local tax and social insurance.\n- Working remotely from Europe for a US company needs **no US visa**.\n- After a year, you may qualify for a **J-1 Trainee** spot or the company may be ready to file an H-1B.\n- Short trips for team meetings on ESTA are fine; working from the US is not.\n\nAsk for the remote contract and a written plan for the visa in the same offer.`,
+      sources: [SRC.j1] };
 
     if (has(/consulate|appointment|stamp|embassy|ds-?160|visa interview/)) return {
-      text: `Your interview would be at the US consulate in **${CONSULATE[c]}**.\n\n- Fill in the **DS-160** online, pay the fee, then book an appointment. Waits in Europe are usually a few weeks, but they spike in summer.\n- Bring: passport, approval notice (I-797) or E-2 company file, offer letter, degree certificates, and CV.\n- Most applicants get a decision at the window. Some get **221(g)** administrative processing, which can add weeks.\n- Since 2025 interview waivers are rare, so plan on going in person.\n\nCheck current wait times on travel.state.gov before you set a start date.`,
+      text: `Your visa interview would be at the US consulate in **${CONSULATE[c]}**.\n\n- Fill in the **DS-160** online, pay the fee, then book a slot. Waits jump in **May–July**, when every European student is applying for a summer J-1.\n- Bring your passport, DS-2019 or I-20 (J-1/F-1), offer letter, proof of studies, and proof of funds if you are a student.\n- For J-1 and F-1 they will ask whether you plan to return home, so be ready to talk about ties to ${c}.\n- Interview waivers are rare since 2025; plan to go in person.`,
       sources: [SRC.wait] };
 
-    if (has(/salary|wage|prevailing|rent|cost of living|expensive|money/)) return {
-      text: `${j ? `${fmtMoney(j.salary)} at ${j.company} in ${j.city}` : "A Bay Area senior salary"} goes less far than it sounds from Berlin:\n\n- One-bedroom rent: about **$3,000–3,800/month** in SF or the Peninsula.\n- Federal + California tax on a $200k salary is roughly 33–35% effective.\n- Health insurance is through your employer; ask about the family plan cost.\n\nFor visas, salary matters in two ways: H-1B employers must pay at least the **prevailing wage** for the role and location, and since FY2027 a higher wage level means **more lottery entries**. You can look up wage levels on the DOL FLAG site.`,
+    if (has(/salary|enough|afford|rent|cost|money|insurance|roommate|live in|expensive/)) return {
+      text: `${j ? `${j.pay} at ${j.company} in ${j.city}` : "Bay Area pay"} sounds like a lot from ${c}, but costs are high:\n\n- A **room in a shared flat** runs about **$1,500–2,200/month**; a studio in SF or Berkeley is $2,500+.\n- Interns: many companies give a housing stipend, so ask. J-1s also need their own **health insurance**, around $100–200 a month.\n- Federal and California tax take roughly 25–30% of a new-grad salary.\n- Budget for a deposit (usually one month's rent) and no credit history, which makes renting harder at first.\n\n${j && j.sponsor === "capexempt" ? "$72k in Berkeley works with roommates, but it is tight living alone." : "Most people under 30 here share a flat for the first year or two."}`,
       sources: [SRC.wage] };
+
+    if (has(/experience|too young|age|graduate first|qualif/)) return {
+      text: `Age itself is not a barrier; what matters is your **degree** and **experience**.\n\n- **Still studying or graduated within 12 months:** J-1 Intern, or a US Master's.\n- **Degree + 1 year of work outside the US:** J-1 Trainee (up to 18 months).\n- **Degree job with a sponsor:** H-1B lottery, or cap-exempt at a university lab.\n- **Company owned by your fellow ${adj(c)} nationals:** E-2.\n\nYou are ${EDU[edu]} with ${profile.exp === "1yr" ? "over a year of full-time experience" : "internship experience"}, so ${student ? "an internship now and a full-time route after graduating" : profile.exp === "1yr" ? "the J-1 Trainee and H-1B routes are both open" : "the J-1 Intern route stays open until 12 months after graduating"}.`,
+      sources: [SRC.j1] };
 
     if (has(/fastest|which of my|compare|best|route|when|start|timeline|how long|how fast|sponsor/)) {
       if (!j || has(/which of my|compare|fastest/)) {
         const ranked = JOBS.filter(x => x.stage !== "Closed").map(x => ({ x, e: earliest(x) })).sort((a, b) => a.e.months - b.e.months);
         return {
-          text: `Ranked by earliest realistic start, for a ${adj(c)} citizen with ${DEG[deg]}:\n\n${ranked.map(({ x, e }) => `- **${x.company}** (${x.primary}): ${e.label}. ${e.why}.`).join("\n")}\n\n${ranked[0].x.sponsor === "e2" ? `Your ${ranked[0].x.company} offer is the only one that avoids both the lottery and the $100k H-1B payment. Its deadline is ${ranked[0].x.next.replace("Offer expires ", "")}.` : `Your fastest option is ${ranked[0].x.company}.`}`,
-          sources: [SRC.h1b, SRC.e2] };
+          text: `Ranked by earliest realistic start in the Bay Area, for a ${adj(c)} citizen who is ${EDU[edu]}:\n\n${ranked.map(({ x, e }) => `- **${x.company}** (${x.primary}): ${e.label}. ${e.why}.`).join("\n")}\n\nThe internship and graduate programme are the quickest ways over. The new-grad H-1B depends on a lottery where junior wage levels get fewer entries.`,
+          sources: [SRC.j1, SRC.h1b] };
       }
       const e = earliest(j), st = status(j);
-      const route = j.primary.startsWith("H-1B") ? "H-1B" : j.primary;
       const body = {
-        h1b: `${j.company} sponsors H-1B, so your main route is the **March 2027 lottery**, with a start on **October 1, 2027** if selected. Two things to settle with them now:\n- Will they pay the **$100k payment** that applies to petitions for people abroad?\n- Will they hire you remotely from ${c} until October, and register you again if you are not picked?\n\nBackup: an **O-1A** has no lottery and could start in spring 2027 if your publications and reviewing record are strong enough.`,
-        capexempt: `${j.company} is **cap-exempt**, so there is no lottery. They can file now and you could start around **${e.label}**.\nKeep in mind the $100k payment question applies here too, and moving to a for-profit later puts you back in the lottery.`,
-        e2: st.cls === "p-good" ? `This is your strongest route. ${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen, so you qualify as an **E-2 treaty employee**. You apply straight at the consulate in ${CONSULATE[c]}, with a realistic start in **${e.label}**.\nNo lottery and no $100k H-1B payment.` : `E-2 does **not** work: ${j.company} is ${adj(j.ownerNation)}-owned and you are a ${adj(c)} citizen. Ask about joining the parent company in ${j.ownerNation} first, which opens an **L-1** after 12 months.`,
-        l1: `The route is an **L-1 transfer**: ${profile.emp === "us" ? "your current employer already has a US office, but Halcyon would need you on its own payroll abroad for 12 months" : "join Halcyon's Munich office, then transfer after 12 continuous months"}. That puts you in the Bay Area around **${e.label}**. You could also ask them to register you in the March 2027 H-1B lottery as a parallel shot.`,
-        none: `${j.company} says it does not sponsor visas. Your realistic route is an **O-1A**, which a 12-person startup may agree to if you bring a ready evidence file and an immigration lawyer's estimate (roughly $8–12k in fees). An alternative is a remote contract from ${c} first.`
+        j1: j1InternOk() ? `This is a **J-1 Intern** route. ${j.company} works with a sponsor organisation, so once you accept they start your DS-2019; then you pay the SEVIS fee and interview in ${CONSULATE[c]}. Plan on **2–3 months**, which fits a **June 2027** start.\n\nIf they offer you a full-time job after, you'd usually go into the March lottery or do a US Master's.` : `You are not eligible for the J-1 Intern visa with a US degree. Ask ${j.company} whether you could intern on **OPT** or **CPT** instead.`,
+        h1b: `${j.company} sponsors H-1B, so your route is the **March 2027 lottery** with a start on **October 1, 2027** if selected.\n- New-grad pay is usually wage **Level I–II**, so you get fewer lottery entries than senior hires.\n- Ask whether they pay the **$100k fee** for hires abroad, and whether they would hire you remotely in ${c} until October.\n\nWith 1+ year of experience, a **J-1 Trainee** start could be a backup.`,
+        capexempt: `${j.company} is **cap-exempt**, so there is no lottery. They can file once you accept, and you could start around **${e.label}**. A J-1 research visa is the other option they may suggest.`,
+        e2: st.cls === "p-good" ? `${j.company} is ${adj(j.ownerNation)}-owned and you are ${adj(c)}, so you can apply as an **E-2 treaty employee** at the consulate in ${CONSULATE[c]}, in time for the **April 2027** intake. No lottery and no $100k payment. As a junior hire, the company will need to show your skills are **essential**.` : `E-2 does **not** work: ${j.company} is ${adj(j.ownerNation)}-owned and you are ${adj(c)}. Ask about a **J-1 Trainee** placement or starting at the parent company.`,
+        f1: `This is the **study route**: F-1 visa for the MS from **August 2027**, internships during the degree through CPT, then up to **3 years on STEM OPT**. Your employer can enter you in the H-1B lottery from inside the US, with a second draw for US Master's holders and no $100k payment.`,
+        none: `${j.company} won't sponsor a visa. Ask them to hire you **remotely in ${c}** through an Employer of Record, then revisit a **J-1 Trainee** visa or an H-1B after a year. Small startups say yes more often when you bring a concrete, low-cost plan.`
       }[j.sponsor];
-      return { text: body + (spouseLine(route) ? `\n\n${spouseLine(route)}` : ""), sources: j.sponsor === "e2" ? [SRC.e2] : j.sponsor === "l1" ? [SRC.l1] : j.sponsor === "none" ? [SRC.o1] : [SRC.h1b, SRC.fee] };
+      const route = { j1: "J-1", h1b: "H-1B", capexempt: "H-1B", e2: "E-2", f1: "F-1" }[j.sponsor];
+      const pl = route ? partnerLine(route) : "";
+      return { text: body + (pl ? `\n\n${pl}` : ""), sources: { j1: [SRC.j1], h1b: [SRC.h1b, SRC.fee], capexempt: [SRC.capx], e2: [SRC.e2], f1: [SRC.f1] }[j.sponsor] || [SRC.j1] };
     }
 
     return {
-      text: `I can help with anything about getting from ${c} to a Bay Area job. Some things I can answer for your profile:\n\n- Which visa fits each role you are tracking, and when you could start\n- The H-1B lottery, the $100k payment, and cap-exempt employers\n- O-1A, L-1 and E-2 alternatives\n- What your spouse can do, ESTA for interviews, and green cards\n\nTry asking about ${j ? j.company : "one of your roles"} or pick a suggestion below.`,
+      text: `I can help with anything about getting from ${c} to a first job in the Bay Area. For example:\n\n- J-1 internships and trainee programmes\n- Whether a US Master's and OPT is worth it\n- The H-1B lottery, the $100k payment, and university labs that skip the lottery\n- Bringing a partner, ESTA for interviews, and what things cost\n\nTry asking about ${name}, or pick a suggestion below.`,
       sources: [] };
   }
 
   // ---------- Live mode (Claude) ----------
   function rules() {
-    const fam = { partner: "moving with a spouse", alone: "moving alone", family: "moving with a spouse and children" }[profile.fam];
-    const jobs = JOBS.map(j => `- ${j.company} | ${j.role} | ${j.city} | stage: ${j.stage} | base ${fmtMoney(j.salary)} | ${j.sponsorNote}${j.ownerNation ? ` | owned by ${j.ownerNation} nationals` : ""} | main route ${j.primary}`).join("\n");
+    const fam = { alone: "moving alone", partner: "moving with an unmarried partner", spouse: "moving with a spouse" }[profile.fam];
+    const jobs = JOBS.map(j => `- ${j.company} | ${j.role} | ${j.city} | stage: ${j.stage} | ${j.pay} | ${j.sponsorNote}${j.ownerNation ? ` | owned by ${j.ownerNation} nationals` : ""} | main route ${j.primary}`).join("\n");
     const focus = selectedId === "all" ? "All applications (compare them)." : `${job().company}, ${job().role}`;
-    return `You are the Visa Desk inside Westbound, a job tracker for Europeans relocating to the San Francisco Bay Area. Today is 26 October 2026.
-Answer the user's questions about US work visas and relocation for THEIR situation, using the profile and tracked roles below. Be concrete: name the visa, the timeline in months/dates from today, and what to ask the employer.
-Style: under 200 words. Short paragraphs and "- " bullets, **bold** for key terms. No headings, no tables, no emoji. Plain, direct sentences.
-Accuracy: you are not a lawyer. Where rules changed recently or are in litigation (the Sept 2025 proclamation requiring a $100,000 payment on new H-1B petitions for workers outside the US; wage-weighted H-1B selection starting with the FY2027 registration in March 2026; fees and processing times), say so briefly and point to uscis.gov or travel.state.gov. Suggest an immigration attorney only when a decision has real stakes, in one short line.
-Key facts: next H-1B registration March 2027, earliest cap start Oct 1 2027; only US master's degrees count for the advanced-degree cap; cap-exempt employers (universities, affiliated nonprofits) file year-round; E-2 needs the employee to share the employer's treaty nationality (>=50% ownership); L-1 needs 12 continuous months abroad with the company; spouses work on E-2 and L-2, not on O-3, and on H-4 only after an approved I-140; ESTA allows interviews but no work.
+    return `You are the Visa Desk inside Westbound, a job tracker for young Europeans (18-30) looking for internships, graduate programmes, first jobs and study in the San Francisco Bay Area. Today is ${TODAY.getDate()} October 2026.
+Answer the user's questions about US visas and relocation for THEIR situation, using the profile and tracked applications below. Be concrete: name the visa, the timeline in months/dates from today, and what to ask the employer or school. Speak plainly to someone early in their career.
+Style: under 200 words. Short paragraphs and "- " bullets, **bold** for key terms. No headings, no tables, no emoji.
+Accuracy: you are not a lawyer. Where rules changed recently or are in litigation (the Sept 2025 proclamation requiring a $100,000 payment on new H-1B petitions for workers outside the US, which does not cover change of status inside the US such as F-1 to H-1B; wage-weighted H-1B selection from the March 2026 registration; proposed changes to OPT and student visa duration; fees and processing times), say so briefly and point to uscis.gov, j1visa.state.gov or travel.state.gov. Suggest an immigration attorney only when a decision has real stakes, in one short line.
+Key facts: J-1 Intern = currently enrolled at a non-US university or graduated within 12 months, up to 12 months, via a designated sponsor organisation; J-1 Trainee = degree plus 1+ year related experience outside the US (or 5 years without degree), up to 18 months; Irish citizens also have the J-1 Intern Work and Travel programme. F-1 students: 20h/week on campus, CPT, 12 months OPT plus 24-month STEM extension. Next H-1B registration March 2027, earliest cap start Oct 1 2027; new-grad offers are usually wage Level I-II (fewer entries); only US master's degrees count for the advanced-degree cap. Cap-exempt employers (universities, affiliated nonprofits) file year-round. E-2 needs shared treaty nationality and the employee must be a manager or have essential skills (harder for junior hires). Only married spouses get dependent visas; unmarried partners do not. Spouses can work on E-2 and J-2 (with EAD), not on F-2, and on H-4 only after an approved I-140. ESTA allows interviews but no work.
 If a question is off-topic, answer in one line and steer back.
 
-USER PROFILE: Lena Hoffmann, ${adj(profile.cit)} citizen living in Berlin, ML engineer with 6 years' experience, ${DEG[profile.deg]}, ${fam}. Current employer: ${profile.emp === "us" ? "has a US office" : "has no US office"}.
-TRACKED ROLES:
+USER PROFILE: Lena Hoffmann, 24, ${adj(profile.cit)} citizen living in Munich, studying computer science. She is ${EDU[profile.edu]}, with ${profile.exp === "1yr" ? "more than a year of full-time work experience" : "internship experience only"}, ${fam}.
+TRACKED APPLICATIONS:
 ${jobs}
-ROLE IN FOCUS: ${focus}`;
+APPLICATION IN FOCUS: ${focus}`;
   }
 
   function setBusy(b) {
@@ -684,7 +710,7 @@ ROLE IN FOCUS: ${focus}`;
   // ---------- Boot ----------
   renderAll(); renderSaved(); setMode();
   const welcome = addBot();
-  finishBot(welcome, `Hi Lena. I'm looking at your **${job().company}** application. It depends on the **${job().primary}** route.\n\nAsk me anything about visas for your move, like whether the new H-1B fee applies to you, or which offer gets you to San Francisco first.`, { q: "Welcome", company: job().company });
+  finishBot(welcome, `Hi Lena. I'm looking at your **${job().company}** application, which runs on the **${job().primary}** route.\n\nAsk me anything about getting to the Bay Area: J-1 internships, whether a US Master's is worth it, the H-1B lottery for new grads, or bringing your partner.`, { q: "Welcome", company: job().company });
   welcome.querySelector(".foot").hidden = true;
 
   if (window.claude && typeof window.claude.use === "function") {
