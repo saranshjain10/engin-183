@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gas Prices This Week</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root {
+    --bg: #f7f7f5; --fg: #1c1c1a; --muted: #5f5f5a; --card: #ffffff; --line: #e2e2dd;
+    --above: #c62828; --below: #2e7d32; --even: #7a7a75;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; flex-direction: column; background: var(--bg); color: var(--fg);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header { padding: 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+  h1 { margin: 0; font-size: clamp(1.25rem, 3.5vw, 1.9rem); line-height: 1.2; }
+  h1 .amt { color: var(--above); }
+  #sub { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+  #map { flex: 1; min-height: 360px; }
+  footer { padding: 8px 16px; font-size: .8rem; color: var(--muted); background: var(--card); border-top: 1px solid var(--line); }
+  .legend { background: var(--card); padding: 8px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.2); font-size: .85rem; }
+  .legend div { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .pin {
+    position: relative; padding: 3px 7px; border-radius: 6px; color: #fff; font-weight: 700; font-size: 13px;
+    white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.35); transform: translate(-50%, calc(-100% - 7px));
+    display: inline-block;
+  }
+  .pin::after {
+    content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px;
+    border: 6px solid transparent; border-bottom: 0; border-top-color: inherit;
+  }
+  .pin.above { background: var(--above); border-color: var(--above); }
+  .pin.below { background: var(--below); border-color: var(--below); }
+  .pin.even  { background: var(--even);  border-color: var(--even); }
+  .leaflet-div-icon.pin-wrap { background: none; border: 0; }
+  .error { color: var(--above); }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="headline">Loading this week's gas prices…</h1>
+  <p id="sub"></p>
+</header>
+<div id="map" role="region" aria-label="Map of regular gasoline prices by city"></div>
+<footer>Prices: U.S. Energy Information Administration, weekly retail regular gasoline (all formulations), dollars per gallon. Map © OpenStreetMap contributors.</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const usd = (n) => "$" + n.toFixed(2);
+  const fmtWeek = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  const map = L.map("map", { zoomSnap: 0.25 }).fitBounds([[24.5, -125], [49.5, -66.5]]);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  function addLegend(avg) {
+    const legend = L.control({ position: "bottomright" });
+    legend.onAdd = () => {
+      const el = L.DomUtil.create("div", "legend");
+      el.innerHTML =
+        `<div><span class="dot" style="background:var(--above)"></span>Above U.S. average (${usd(avg)})</div>` +
+        `<div><span class="dot" style="background:var(--below)"></span>Below U.S. average</div>`;
+      return el;
+    };
+    legend.addTo(map);
+  }
+
+  function render(d) {
+    const avg = d.usAverage;
+    if (d.california != null && avg != null) {
+      const diff = d.california - avg;
+      const pct = Math.round((Math.abs(diff) / avg) * 100);
+      $("headline").innerHTML = diff >= 0
+        ? `California pays <span class="amt">${usd(diff)} more</span> per gallon than the U.S.`
+        : `California pays <span class="amt" style="color:var(--below)">${usd(-diff)} less</span> per gallon than the U.S.`;
+      $("sub").textContent =
+        `California ${usd(d.california)} vs. U.S. average ${usd(avg)} (${pct}% ${diff >= 0 ? "higher" : "lower"}) · regular gasoline, week of ${fmtWeek(d.week)}`;
+    } else {
+      $("headline").textContent = `Regular gasoline prices, week of ${fmtWeek(d.week)}`;
+      $("sub").textContent = `U.S. average ${usd(avg)}. EIA has not published California's price for this week yet.`;
+    }
+
+    for (const c of d.cities) {
+      const cls = c.price == null ? "even" : c.price > avg ? "above" : c.price < avg ? "below" : "even";
+      const label = c.price == null ? "n/a" : usd(c.price);
+      const icon = L.divIcon({ className: "pin-wrap", html: `<span class="pin ${cls}">${label}</span>`, iconSize: [0, 0] });
+      let detail = "No price published this week";
+      if (c.price != null) {
+        const delta = c.price - avg;
+        detail = delta === 0 ? "Same as the U.S. average"
+          : `${usd(Math.abs(delta))} ${delta > 0 ? "above" : "below"} the U.S. average of ${usd(avg)}`;
+      }
+      L.marker([c.lat, c.lng], { icon, title: `${c.name}: ${label}`, keyboard: true })
+        .bindPopup(`<strong>${c.name}</strong><br>${label} per gallon<br>${detail}`)
+        .addTo(map);
+    }
+    addLegend(avg);
+    map.fitBounds(L.latLngBounds(d.cities.map((c) => [c.lat, c.lng])), { padding: [40, 40] });
+  }
+
+  fetch("/api/prices")
+    .then(async (r) => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.error || `Request failed (${r.status})`);
+      return body;
+    })
+    .then(render)
+    .catch((err) => {
+      $("headline").textContent = "Couldn't load gas prices";
+      $("sub").innerHTML = `<span class="error"></span>`;
+      $("sub").firstChild.textContent = err.message;
+    });
+</script>
+</body>
+</html>

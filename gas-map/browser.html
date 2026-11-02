@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gas Prices This Week</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root {
+    --bg: #f7f7f5; --fg: #1c1c1a; --muted: #5f5f5a; --card: #ffffff; --line: #e2e2dd;
+    --above: #c62828; --below: #2e7d32; --even: #7a7a75;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; flex-direction: column; background: var(--bg); color: var(--fg);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header { padding: 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+  h1 { margin: 0; font-size: clamp(1.25rem, 3.5vw, 1.9rem); line-height: 1.2; }
+  h1 .amt { color: var(--above); }
+  #sub { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+  #map { flex: 1; min-height: 360px; }
+  footer { padding: 8px 16px; font-size: .8rem; color: var(--muted); background: var(--card); border-top: 1px solid var(--line); }
+  .legend { background: var(--card); padding: 8px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.2); font-size: .85rem; }
+  .legend div { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .pin {
+    position: relative; padding: 3px 7px; border-radius: 6px; color: #fff; font-weight: 700; font-size: 13px;
+    white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.35); transform: translate(-50%, calc(-100% - 7px));
+    display: inline-block;
+  }
+  .pin::after {
+    content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px;
+    border: 6px solid transparent; border-bottom: 0; border-top-color: inherit;
+  }
+  .pin.above { background: var(--above); border-color: var(--above); }
+  .pin.below { background: var(--below); border-color: var(--below); }
+  .pin.even  { background: var(--even);  border-color: var(--even); }
+  .leaflet-div-icon.pin-wrap { background: none; border: 0; }
+  .error { color: var(--above); }
+  #keybox { padding: 16px; background: var(--card); border-bottom: 1px solid var(--line); }
+  #keybox form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; max-width: 720px; }
+  #keybox label { width: 100%; font-weight: 600; }
+  #keybox input { flex: 1 1 260px; min-width: 0; padding: 8px 10px; font: inherit; border: 1px solid var(--line); border-radius: 6px; }
+  #keybox button { padding: 8px 14px; font: inherit; font-weight: 600; border: 0; border-radius: 6px; background: var(--fg); color: var(--card); cursor: pointer; }
+  #keybox p { margin: 8px 0 0; font-size: .85rem; color: var(--muted); }
+  footer button { font: inherit; color: inherit; background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="headline">Loading this week's gas prices…</h1>
+  <p id="sub"></p>
+</header>
+<div id="keybox" hidden>
+  <form id="keyform">
+    <label for="key">Your EIA API key</label>
+    <input id="key" name="key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key" required>
+    <button type="submit">Show prices</button>
+  </form>
+  <p>The page sends the key only to api.eia.gov and remembers it in this browser. No key yet? <a href="https://www.eia.gov/opendata/register.php" target="_blank" rel="noopener">Get a free one from EIA</a>.</p>
+</div>
+<div id="map" role="region" aria-label="Map of regular gasoline prices by city"></div>
+<footer>Prices: U.S. Energy Information Administration, weekly retail regular gasoline (all formulations), dollars per gallon. Map © OpenStreetMap contributors.<span id="updated"></span> <button type="button" id="changekey">Change API key</button></footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const usd = (n) => "$" + n.toFixed(2);
+  const fmtWeek = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  const map = L.map("map", { zoomSnap: 0.25 }).fitBounds([[24.5, -125], [49.5, -66.5]]);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  function addLegend(avg) {
+    legend = L.control({ position: "bottomright" });
+    legend.onAdd = () => {
+      const el = L.DomUtil.create("div", "legend");
+      el.innerHTML =
+        `<div><span class="dot" style="background:var(--above)"></span>Above U.S. average (${usd(avg)})</div>` +
+        `<div><span class="dot" style="background:var(--below)"></span>Below U.S. average</div>`;
+      return el;
+    };
+    if (legend) legend.remove();
+    legend.addTo(map);
+  }
+
+  function render(d) {
+    const avg = d.usAverage;
+    if (d.california != null && avg != null) {
+      const diff = d.california - avg;
+      const pct = Math.round((Math.abs(diff) / avg) * 100);
+      $("headline").innerHTML = diff >= 0
+        ? `California pays <span class="amt">${usd(diff)} more</span> per gallon than the U.S.`
+        : `California pays <span class="amt" style="color:var(--below)">${usd(-diff)} less</span> per gallon than the U.S.`;
+      $("sub").textContent =
+        `California ${usd(d.california)} vs. U.S. average ${usd(avg)} (${pct}% ${diff >= 0 ? "higher" : "lower"}) · regular gasoline, week of ${fmtWeek(d.week)}`;
+    } else {
+      $("headline").textContent = `Regular gasoline prices, week of ${fmtWeek(d.week)}`;
+      $("sub").textContent = `U.S. average ${usd(avg)}. EIA has not published California's price for this week yet.`;
+    }
+
+    layers.clearLayers();
+    for (const c of d.cities) {
+      const cls = c.price == null ? "even" : c.price > avg ? "above" : c.price < avg ? "below" : "even";
+      const label = c.price == null ? "n/a" : usd(c.price);
+      const icon = L.divIcon({ className: "pin-wrap", html: `<span class="pin ${cls}">${label}</span>`, iconSize: [0, 0] });
+      let detail = "No price published this week";
+      if (c.price != null) {
+        const delta = c.price - avg;
+        detail = delta === 0 ? "Same as the U.S. average"
+          : `${usd(Math.abs(delta))} ${delta > 0 ? "above" : "below"} the U.S. average of ${usd(avg)}`;
+      }
+      L.marker([c.lat, c.lng], { icon, title: `${c.name}: ${label}`, keyboard: true })
+        .bindPopup(`<strong>${c.name}</strong><br>${label} per gallon<br>${detail}`)
+        .addTo(layers);
+    }
+    addLegend(avg);
+    map.fitBounds(L.latLngBounds(d.cities.map((c) => [c.lat, c.lng])), { padding: [40, 40] });
+  }
+
+  // Weekly retail regular gasoline, all formulations, $/gal (EIA series IDs).
+  // These ten are the cities EIA publishes weekly city-level prices for.
+  const US = "EMM_EPMR_PTE_NUS_DPG", CA = "EMM_EPMR_PTE_SCA_DPG";
+  const CITIES = [
+    { series: "EMM_EPMR_PTE_Y05SF_DPG", name: "San Francisco", lat: 37.7749, lng: -122.4194 },
+    { series: "EMM_EPMR_PTE_Y05LA_DPG", name: "Los Angeles", lat: 34.0522, lng: -118.2437 },
+    { series: "EMM_EPMR_PTE_Y48SE_DPG", name: "Seattle", lat: 47.6062, lng: -122.3321 },
+    { series: "EMM_EPMR_PTE_YDEN_DPG", name: "Denver", lat: 39.7392, lng: -104.9903 },
+    { series: "EMM_EPMR_PTE_Y44HO_DPG", name: "Houston", lat: 29.7604, lng: -95.3698 },
+    { series: "EMM_EPMR_PTE_YORD_DPG", name: "Chicago", lat: 41.8781, lng: -87.6298 },
+    { series: "EMM_EPMR_PTE_YCLE_DPG", name: "Cleveland", lat: 41.4993, lng: -81.6944 },
+    { series: "EMM_EPMR_PTE_YMIA_DPG", name: "Miami", lat: 25.7617, lng: -80.1918 },
+    { series: "EMM_EPMR_PTE_Y35NY_DPG", name: "New York City", lat: 40.7128, lng: -74.006 },
+    { series: "EMM_EPMR_PTE_YBOS_DPG", name: "Boston", lat: 42.3601, lng: -71.0589 },
+  ];
+  const KEY_STORE = "eia-api-key";
+  const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ""; } catch { return ""; } };
+  const setKey = (k) => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch {} };
+  let sessionKey = getKey();
+  const layers = L.layerGroup().addTo(map);
+  let legend = null;
+
+  async function fetchPrices(apiKey) {
+    const series = [US, CA, ...CITIES.map((c) => c.series)];
+    const params = new URLSearchParams({
+      api_key: apiKey, frequency: "weekly", "data[0]": "value",
+      "sort[0][column]": "period", "sort[0][direction]": "desc",
+      length: String(series.length * 4), // last ~4 weeks, enough to cover a late series
+    });
+    series.forEach((s) => params.append("facets[series][]", s));
+    const res = await fetch("https://api.eia.gov/v2/petroleum/pri/gnd/data/?" + params);
+    const json = await res.json().catch(() => ({}));
+    if (res.status === 401 || res.status === 403) throw Object.assign(new Error("EIA rejected that API key. Check it and try again."), { badKey: true });
+    if (!res.ok) throw new Error(json?.error?.message || json?.error || `EIA returned HTTP ${res.status}`);
+    const rows = json?.response?.data;
+    if (!Array.isArray(rows)) throw new Error("EIA sent an unexpected response.");
+
+    const bySeries = {};
+    for (const r of rows) {
+      const v = parseFloat(r.value);
+      if (Number.isFinite(v)) (bySeries[r.series] ??= {})[r.period] = v;
+    }
+    // "This week" = the latest week EIA has published a U.S. average for.
+    const week = Object.keys(bySeries[US] || {}).sort().at(-1);
+    if (!week) throw new Error("EIA's response had no U.S. average.");
+    const at = (s) => bySeries[s]?.[week] ?? null;
+    return { week, usAverage: at(US), california: at(CA), cities: CITIES.map(({ series, ...c }) => ({ ...c, price: at(series) })) };
+  }
+
+  function askForKey(message) {
+    $("keybox").hidden = false;
+    $("headline").textContent = "Gas prices this week";
+    $("sub").textContent = message || "Paste your EIA API key above to load this week's prices.";
+    $("key").focus();
+  }
+
+  async function load(apiKey) {
+    $("keybox").hidden = true;
+    $("headline").textContent = "Loading this week's gas prices…";
+    $("sub").textContent = "";
+    try {
+      render(await fetchPrices(apiKey));
+    } catch (err) {
+      if (err.badKey) { setKey(""); sessionKey = ""; return askForKey(err.message); }
+      $("headline").textContent = "Couldn't load gas prices";
+      $("sub").innerHTML = `<span class="error"></span>`;
+      $("sub").firstChild.textContent = err instanceof TypeError ? "Couldn't reach the EIA API. Check your internet connection and reload." : err.message;
+    }
+  }
+
+  $("keyform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const k = $("key").value.trim();
+    if (!k) return;
+    sessionKey = k; setKey(k); $("key").value = "";
+    load(k);
+  });
+  $("changekey").addEventListener("click", () => askForKey("Paste a different EIA API key above."));
+
+  // On the published site, prices.json is refreshed weekly by a GitHub Action
+  // that calls the EIA API with the key stored as a repository secret, so
+  // visitors don't need a key. The key form is the fallback when it's missing.
+  async function loadPublished() {
+    try {
+      const r = await fetch("prices.json", { cache: "no-cache" });
+      if (!r.ok) return false;
+      const d = await r.json();
+      if (!d.week || !Array.isArray(d.cities)) return false;
+      render(d);
+      if (d.fetchedAt) $("updated").textContent = ` Fetched from the EIA API on ${new Date(d.fetchedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`;
+      $("changekey").hidden = true;
+      return true;
+    } catch { return false; }
+  }
+
+  loadPublished().then((ok) => { if (!ok) sessionKey ? load(sessionKey) : askForKey(); });
+</script>
+</body>
+</html>
