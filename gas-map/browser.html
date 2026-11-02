@@ -63,7 +63,7 @@
   <p>The page sends the key only to api.eia.gov and remembers it in this browser. No key yet? <a href="https://www.eia.gov/opendata/register.php" target="_blank" rel="noopener">Get a free one from EIA</a>.</p>
 </div>
 <div id="map" role="region" aria-label="Map of regular gasoline prices by city"></div>
-<footer>Prices: U.S. Energy Information Administration, weekly retail regular gasoline (all formulations), dollars per gallon. Map © OpenStreetMap contributors. <button type="button" id="changekey">Change API key</button></footer>
+<footer>Prices: U.S. Energy Information Administration, weekly retail regular gasoline (all formulations), dollars per gallon. Map © OpenStreetMap contributors.<span id="updated"></span> <button type="button" id="changekey">Change API key</button></footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -204,7 +204,23 @@
   });
   $("changekey").addEventListener("click", () => askForKey("Paste a different EIA API key above."));
 
-  sessionKey ? load(sessionKey) : askForKey();
+  // On the published site, prices.json is refreshed weekly by a GitHub Action
+  // that calls the EIA API with the key stored as a repository secret, so
+  // visitors don't need a key. The key form is the fallback when it's missing.
+  async function loadPublished() {
+    try {
+      const r = await fetch("prices.json", { cache: "no-cache" });
+      if (!r.ok) return false;
+      const d = await r.json();
+      if (!d.week || !Array.isArray(d.cities)) return false;
+      render(d);
+      if (d.fetchedAt) $("updated").textContent = ` Fetched from the EIA API on ${new Date(d.fetchedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`;
+      $("changekey").hidden = true;
+      return true;
+    } catch { return false; }
+  }
+
+  loadPublished().then((ok) => { if (!ok) sessionKey ? load(sessionKey) : askForKey(); });
 </script>
 </body>
 </html>

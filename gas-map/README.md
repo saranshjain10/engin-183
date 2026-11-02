@@ -24,3 +24,13 @@ Then open http://localhost:3000. Set `PORT` to use a different port.
 `browser.html` is the same map as a single file that needs no server. Download it and double-click to open it in any browser. It calls the EIA API directly from the browser. EIA allows this: its API sends `Access-Control-Allow-Origin: *`.
 
 A browser can't read environment variables, so the page asks for your EIA API key the first time you open it and remembers it in that browser's local storage. The key is sent only to api.eia.gov and is never written into the file. Use **Change API key** in the footer to replace it. If EIA rejects the key, the page asks for it again.
+
+## Published site: no key needed for visitors
+
+On GitHub Pages, `browser.html` first loads `prices.json` from the same site. The **Update gas prices** GitHub Action (`.github/workflows/update-gas-prices.yml`) writes that file. It runs every Tuesday and Wednesday morning, calls the EIA API with `node gas-map/fetch-prices.js` using the `EIA_API_KEY` repository secret, and commits `prices.json` when EIA has published a new week. Visitors never see the key and are never asked for one. The key form appears only when `prices.json` can't be loaded, for example when the file is opened from disk.
+
+To refresh the file by hand:
+
+```bash
+EIA_API_KEY=your_key node gas-map/fetch-prices.js
+```

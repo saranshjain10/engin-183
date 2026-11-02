@@ -96,7 +96,11 @@ const server = http.createServer((req, res) => {
   res.end("Not found");
 });
 
-server.listen(PORT, () => {
-  console.log(`Gas price map on http://localhost:${PORT}`);
-  if (!API_KEY) console.warn("Warning: EIA_API_KEY is not set; /api/prices will return an error.");
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Gas price map on http://localhost:${PORT}`);
+    if (!API_KEY) console.warn("Warning: EIA_API_KEY is not set; /api/prices will return an error.");
+  });
+}
+
+module.exports = { fetchPrices };
