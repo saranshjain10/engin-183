@@ -18,3 +18,9 @@ Then open http://localhost:3000. Set `PORT` to use a different port.
 - "This week" is the latest week EIA has published a U.S. average for. Every pin and the headline use that same week. A city with no price for that week shows a gray "n/a" pin.
 - The California figure is EIA's statewide California average, not the average of San Francisco and Los Angeles.
 - `public/index.html` loads Leaflet 1.9.4 from unpkg (with integrity hashes) and draws the pins, popups, legend and headline.
+
+## Browser-only version
+
+`browser.html` is the same map as a single file that needs no server. Download it and double-click to open it in any browser. It calls the EIA API directly from the browser. EIA allows this: its API sends `Access-Control-Allow-Origin: *`.
+
+A browser can't read environment variables, so the page asks for your EIA API key the first time you open it and remembers it in that browser's local storage. The key is sent only to api.eia.gov and is never written into the file. Use **Change API key** in the footer to replace it. If EIA rejects the key, the page asks for it again.
