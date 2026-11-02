@@ -11,3 +11,7 @@ Changing the profile changes the answers. For example, switching citizenship fro
 Open `index.html` in a browser. Outside claude.ai the chat uses a built-in rule-based guide ("Guide" badge). When published as a claude.ai artifact, it uses Claude for live answers ("Live · Claude" badge) and falls back to the guide if that isn't available.
 
 All companies and people are fictional example data. Visa information reflects rules as of mid-2026 and is not legal advice.
+
+## Also in this repo
+
+- [`gas-map/`](gas-map/): a map of this week's EIA gasoline prices in 10 U.S. cities. See its README.
